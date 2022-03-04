@@ -34,6 +34,8 @@ class Property(models.Model):
     )
     for_sale = models.BooleanField(default=None)
     asking_price = models.IntegerField(default=None)
+    currently_let = models.BooleanField(default=None)
+    mortgaged = models.BooleanField(default=None)
 
     def __str__(self):
         return f"{self.house_number_or_name} {self.address}"

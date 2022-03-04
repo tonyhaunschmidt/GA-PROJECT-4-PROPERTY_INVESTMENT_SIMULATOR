@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'transactions',
     'emails',
     'lettings',
-    'mortgages'
+    'mortgages',
+    'valuations'
 ]
 
 MIDDLEWARE = [

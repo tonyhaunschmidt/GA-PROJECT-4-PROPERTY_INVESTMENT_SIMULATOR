@@ -14,14 +14,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Mortgage',
+            name='Valuation',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('LTV', models.IntegerField(default=None)),
-                ('loan', models.IntegerField(default=None)),
-                ('expirey_date', models.DateTimeField(default=None)),
-                ('interest', models.IntegerField(default=None)),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mortgages', to='properties.property')),
+                ('valuation', models.IntegerField(default=None)),
+                ('time_stamp', models.DateTimeField(default=None)),
+                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='valuations', to='properties.property')),
             ],
         ),
     ]
