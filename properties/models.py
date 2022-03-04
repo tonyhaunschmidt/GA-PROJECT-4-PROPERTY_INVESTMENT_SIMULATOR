@@ -27,27 +27,13 @@ class Property(models.Model):
     base_rate_level3 = models.IntegerField(default=None)
     level1_improvement_cost = models.IntegerField(default=None)
     level2_improvement_cost = models.IntegerField(default=None)
-    # owner = models.ForeignKey(
-    #  "users.User",
-    #  related_name="property",
-    #  on_delete = models.CASCADE
-    # )
+    owner = models.ForeignKey(
+        "jwt_auth.User",
+        related_name="properties",
+        on_delete=models.CASCADE
+    )
+    for_sale = models.BooleanField(default=None)
     asking_price = models.IntegerField(default=None)
-    # offers = models.ForeignKey(
-    #  "offers.Offer",
-    #  related_name="property",
-    #  on_delete = models.CASCADE
-    # )
-    # investment_history = models.ManyToManyField(
-    #  "transactions.Transaction",
-    #  related_name="property",
-    # )
-    # mortgages = models.ForeignKey(
-    #  "mortgages.Mortgage",
-    #  related_name="property",
-    #  on_delete = models.CASCADE
-    # )
-    # monthly_income
 
     def __str__(self):
         return f"{self.house_number_or_name} {self.address}"
