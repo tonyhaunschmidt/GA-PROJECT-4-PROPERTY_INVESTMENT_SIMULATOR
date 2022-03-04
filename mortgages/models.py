@@ -15,7 +15,7 @@ class Mortgage(models.Model):
         on_delete=models.CASCADE
     )
     LTV = models.IntegerField(default=None)
-    loan = models.IntegerField(default=None)
+    loan_value = models.IntegerField(default=None)
     term_expiary = models.DateTimeField(default=None)
     interest = models.IntegerField(default=None)
 

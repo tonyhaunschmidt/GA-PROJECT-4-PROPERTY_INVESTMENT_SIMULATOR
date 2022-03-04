@@ -36,6 +36,7 @@ class Property(models.Model):
     asking_price = models.IntegerField(default=None)
     currently_let = models.BooleanField(default=None)
     mortgaged = models.BooleanField(default=None)
+    void_upkeep = models.IntegerField(default=None)
 
     def __str__(self):
         return f"{self.house_number_or_name} {self.address}"
