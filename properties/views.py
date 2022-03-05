@@ -21,6 +21,19 @@ class PropertyListView(APIView):
         return Response(serialized_properties.data, status=status.HTTP_200_OK)
 
 
+class PropertyDetailView(APIView):
+    def get_property(self, pk):
+        try:
+            return Property.objects.get(pk=pk)
+        except Property.DoesNotExist:
+            raise NotFound(detail="Property not found")
+
+    def get(self, _request, pk):
+        festival = self.get_property(pk)
+        serialized_property = PropertySerializer(festival)
+        return Response(serialized_property.data, status=status.HTTP_200_OK)
+
+
 class MarketplaceListView(APIView):
     #permission_classes = (IsAuthenticatedOrReadOnly,)
 

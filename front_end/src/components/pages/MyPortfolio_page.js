@@ -1,11 +1,13 @@
 import React from 'react'
 
-const MyPortfolio = () => {
+const MyPortfolioPage = () => {
 
 
   return (
-    <h1>MY PORTFOLIO</h1>
+    <section className='my_portfolio_page'>
+      <h1>MY PORTFOLIO</h1>
+    </section>
   )
 }
 
-export default MyPortfolio
+export default MyPortfolioPage

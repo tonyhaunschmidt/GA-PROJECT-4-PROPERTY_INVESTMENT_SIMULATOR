@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 
-const Marketplace = () => {
+const MarketplacePage = () => {
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
     currency: 'GBP',
@@ -24,9 +25,9 @@ const Marketplace = () => {
 
 
   return (
-    <section className='market_place'>
+    <section className='marketplace_page'>
       <h1>MARKETPLACE</h1>
-      {marketPlaceProperies?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT
+      {marketPlaceProperies?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT??
         const description = property.level === 1 ? property.short_description_level1 :
           property.level === 2 ? property.short_description_level2 :
             property.short_description_level3
@@ -35,19 +36,21 @@ const Marketplace = () => {
             property.images_level3
         const imagesArray = images.split('&')
         return (
-          <div key={property.id}>
-            {imagesArray.map(imageURL =>
-              <img src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
-            )}
+          <Link key={property.id} to={`/properties/${property.id}`}>
+            <div>
+              {imagesArray.map(imageURL =>
+                <img src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
+              )}
 
-            <h3>{description}</h3>
-            <h4>{property.address}</h4>
-            <h2>{formatter.format(property.asking_price)}</h2>
-          </div>
+              <h3>{description}</h3>
+              <h4>{property.address}</h4>
+              <h2>{formatter.format(property.asking_price)}</h2>
+            </div>
+          </Link>
         )
       })}
     </section>
   )
 }
 
-export default Marketplace
+export default MarketplacePage

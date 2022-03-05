@@ -3,22 +3,24 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //COMPONENTS
-import Welcome from './components/pages/Welcome_page'
-import LogIn from './components/pages/Login_page'
-import Register from './components/pages/Register_page'
-import MyPortfolio from './components/pages/MyPortfolio_page'
-import Marketplace from './components/pages/Marketplace_page'
+import WelcomePage from './components/pages/Welcome_page'
+import LogInPage from './components/pages/Login_page'
+import RegisterPage from './components/pages/Register_page'
+import MyPortfolioPage from './components/pages/MyPortfolio_page'
+import MarketplacePage from './components/pages/Marketplace_page'
+import PropertyPage from './components/pages/Property_page'
 
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Welcome />} />
-        <Route path='login' element={<LogIn />} />
-        <Route path='register' element={<Register />} />
-        <Route path='myportfolio' element={<MyPortfolio />} />
-        <Route path='marketplace' element={<Marketplace />} />
+        <Route path='/' element={<WelcomePage />} />
+        <Route path='login' element={<LogInPage />} />
+        <Route path='register' element={<RegisterPage />} />
+        <Route path='myportfolio' element={<MyPortfolioPage />} />
+        <Route path='marketplace' element={<MarketplacePage />} />
+        <Route path='properties/:id' element={<PropertyPage />} />
       </Routes>
     </BrowserRouter>
   );
