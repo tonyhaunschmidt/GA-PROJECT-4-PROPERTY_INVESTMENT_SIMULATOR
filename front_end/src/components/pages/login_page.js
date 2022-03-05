@@ -1,11 +1,38 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
-const Login = () => {
+const Register = () => {
+  const navigate = useNavigate()
 
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+
+  const handleFormInput = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      await axios.post('/api/auth/login/', formData)
+      navigate('/myportfolio')
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   return (
-    <h1>LOGIN</h1>
+    <section className='login_page'>
+      <form onSubmit={handleSubmit}>
+        <input type='text' name='email' placeholder='Email' onChange={handleFormInput} />
+        <input type='password' name='password' placeholder='Password' onChange={handleFormInput} />
+        <button>LOG IN</button>
+      </form>
+    </section>
   )
 }
 
-export default Login
+export default Register

@@ -38,7 +38,7 @@ const Register = () => {
         <input type='text' name='email' placeholder='Email' onChange={handleFormInput} />
         <input type='password' name='password' placeholder='Password' onChange={handleFormInput} />
         <input type='password' name='password_confirmation' placeholder='Confirm Password' onChange={handleFormInput} />
-        <button>Join</button>
+        <button>JOIN</button>
       </form>
     </section>
   )

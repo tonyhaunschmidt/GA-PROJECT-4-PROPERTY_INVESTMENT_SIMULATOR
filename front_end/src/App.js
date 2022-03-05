@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //COMPONENTS
 import Welcome from './components/pages/welcome_page'
-import Login from './components/pages/login_page'
+import LogIn from './components/pages/login_page'
 import Register from './components/pages/register_page'
 
 
@@ -13,7 +13,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Welcome />} />
-        <Route path='login' element={<Login />} />
+        <Route path='login' element={<LogIn />} />
         <Route path='register' element={<Register />} />
       </Routes>
     </BrowserRouter>
