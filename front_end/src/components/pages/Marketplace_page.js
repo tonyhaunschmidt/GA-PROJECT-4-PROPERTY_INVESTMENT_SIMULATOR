@@ -39,7 +39,7 @@ const MarketplacePage = () => {
           <Link key={property.id} to={`/properties/${property.id}`}>
             <div>
               {imagesArray.map(imageURL =>
-                <img src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
+                <img key={imageURL} src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
               )}
 
               <h3>{description}</h3>
