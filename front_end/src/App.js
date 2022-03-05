@@ -3,9 +3,11 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 //COMPONENTS
-import Welcome from './components/pages/welcome_page'
-import LogIn from './components/pages/login_page'
-import Register from './components/pages/register_page'
+import Welcome from './components/pages/Welcome_page'
+import LogIn from './components/pages/Login_page'
+import Register from './components/pages/Register_page'
+import MyPortfolio from './components/pages/MyPortfolio_page'
+import Marketplace from './components/pages/Marketplace_page'
 
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
         <Route path='/' element={<Welcome />} />
         <Route path='login' element={<LogIn />} />
         <Route path='register' element={<Register />} />
+        <Route path='myportfolio' element={<MyPortfolio />} />
+        <Route path='marketplace' element={<Marketplace />} />
       </Routes>
     </BrowserRouter>
   );
