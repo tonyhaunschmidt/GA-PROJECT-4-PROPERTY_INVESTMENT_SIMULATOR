@@ -1,3 +1,4 @@
+from pickle import TRUE
 from typing_extensions import Required
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -12,6 +13,7 @@ class User(AbstractUser):
     saved_properties = models.ManyToManyField(
         "properties.Property",
         related_name="saved_by",
+        blank=True
     )
 
     def __str__(self):
