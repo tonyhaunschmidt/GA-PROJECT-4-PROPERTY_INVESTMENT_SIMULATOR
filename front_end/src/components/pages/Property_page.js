@@ -41,6 +41,7 @@ const PropertyPage = () => {
     term_expirary: 0,
     interest: 5,
   })
+  const [offerInputError, setOfferInputError] = useState('')
 
   useEffect(() => {
     const getProperty = async () => {
@@ -96,6 +97,26 @@ const PropertyPage = () => {
 
   const displayPopUp = (e) => {
     setPopUpToShow(e.target.value)
+    if (e.target.value === 'mortgageReject' || e.target.value === 'none') {
+      setOfferFormData({
+        property: id,
+        owner: getPayload.sub,
+        mortgage: 0,
+        offer_value: 0,
+        stamp_duty: 0,
+        fees: 2000,
+        accepted: false,
+        retracted: false,
+      })
+      setMortgageRequest({
+        property: id,
+        owner: getPayload.sub,
+        LTV: 75,
+        loan_value: 0,
+        term_expirary: 0,
+        interest: 5,
+      })
+    }
   }
 
   const handleOfferFormInput = (e) => {
@@ -116,10 +137,29 @@ const PropertyPage = () => {
       //payment = offer=value-loanvalue
       setOfferFormData({ ...offerFormData, [e.target.name]: e.target.value, stamp_duty: stampDuty })
       setMortgageRequest({ ...mortgageRequest, loan_value: loanValue })
+      if (e.target.value % 1 !== 0) {
+        setOfferInputError('Input must be a whole number')
+      } else {
+        setOfferInputError('')
+      }
     } else if (e.target.name === 'LTV') {
       const loanValue = Math.floor(offerFormData.offer_value * (e.target.value / 100))
+      let fee = 0
+      if (e.target.value === '0') {
+        fee = 0
+      } else if (e.target.value === '75') {
+        console.log('here')
+        if (mortgageRequest.interest === '3') {
+          fee = 2000
+        } else if (mortgageRequest.interest === '4') {
+          fee = 1500
+        } else if (mortgageRequest.interest === '5') {
+          fee = 1000
+        }
+      }
       //payment = offer=value-loanvalue
       setMortgageRequest({ ...mortgageRequest, [e.target.name]: e.target.value, loan_value: loanValue })
+      setOfferFormData({ ...offerFormData, fees: fee + 1000 })
     } else if (e.target.name === 'interest') {
       let fee = 0
       if (e.target.value === '3') {
@@ -165,17 +205,25 @@ const PropertyPage = () => {
               <div className='pop_up'>
 
                 <h4>OFFER FORM</h4>
-                <input type='number' pattern='^\\$?(([1-9](\\d*|\\d{0,2}(,\\d{3})*))|0)(\\.\\d{1,2})?$' min='1' name='offer_value' placeholder='Offer Amount' onChange={handleOfferFormInput} />
+                <label for='offer_value'>Offer Value (£)</label>
+                <input type='number' min='1' step='1' name='offer_value' onChange={handleOfferFormInput} />
+                <p>{offerInputError}</p>
                 <fieldset onChange={handleOfferFormInput} default='75'>
                   <label for='75'>Mortgage (25% deposit)</label>
                   <input type='radio' value='75' name='LTV' />
                   <fieldset onChange={handleOfferFormInput} disabled={mortgageRequest.LTV === '0' ? true : false}>
-                    <label for='3'>Mortgage Broker 1 (£2,000 Fee, 3% Interest)</label>
-                    <input type='radio' value='3' name='interest' />
-                    <label for='4'>Mortgage Broker 2 (£1,500 Fee, 4% Interest)</label>
-                    <input type='radio' value='4' name='interest' />
-                    <label for='5'>Mortgage Broker 3 (£1,000 Fee, 5% Interest)</label>
-                    <input type='radio' value='5' name='interest' checked='checked' />
+                    <div>
+                      <label for='3'>Mortgage Broker 1 (£2,000 Fee, 3% Interest)</label>
+                      <input type='radio' value='3' name='interest' />
+                    </div>
+                    <div>
+                      <label for='4'>Mortgage Broker 2 (£1,500 Fee, 4% Interest)</label>
+                      <input type='radio' value='4' name='interest' />
+                    </div>
+                    <div>
+                      <label for='5'>Mortgage Broker 3 (£1,000 Fee, 5% Interest)</label>
+                      <input type='radio' value='5' name='interest' />
+                    </div>
                   </fieldset>
                   <label for='0'>Full Payment</label>
                   <input type='radio' value='0' name='LTV' />
