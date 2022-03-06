@@ -1,3 +1,4 @@
+from audioop import add
 from django.db import models
 
 # Create your models here.
@@ -19,12 +20,12 @@ class Offer(models.Model):
         related_name="offers",
         on_delete=models.CASCADE
     )
-    offer_Value = models.IntegerField(default=None)
+    offer_value = models.IntegerField(default=None)
     stamp_duty = models.IntegerField(default=None)
-    legal_fees = models.IntegerField(default=None)
+    fees = models.IntegerField(default=None)
     accepted = models.BooleanField(default=None)
     retracted = models.BooleanField(default=None)
-    time_stamp = models.DateTimeField(default=None)
+    time_stamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.property}- {self.owner}"

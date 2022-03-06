@@ -18,7 +18,7 @@ class Transaction(models.Model):
     )
     amount = models.IntegerField(default=None)
     stamp_duty = models.IntegerField(default=None)
-    legal_fees = models.IntegerField(default=None)
+    fees = models.IntegerField(default=None)
     time_stamp = models.DateTimeField(default=None)
 
     def __str__(self):

@@ -12,7 +12,6 @@ const RegisterPage = () => {
     email: '',
     password: '',
     password_confirmation: '',
-
   })
 
   const handleFormInput = (e) => {

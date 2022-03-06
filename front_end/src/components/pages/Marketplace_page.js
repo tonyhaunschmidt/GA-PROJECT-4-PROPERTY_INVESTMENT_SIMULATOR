@@ -4,11 +4,13 @@ import axios from 'axios'
 
 
 const MarketplacePage = () => {
+
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
     currency: 'GBP',
     minimumFractionDigits: 0
   })
+
   const [marketPlaceProperies, setMarketPlaceProperies] = useState()
 
   useEffect(() => {
