@@ -1,3 +1,4 @@
+from xml.dom import NotFoundErr
 from django.shortcuts import render
 # APIView - default view class to extend
 from rest_framework.views import APIView
@@ -5,8 +6,8 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from .serializers.common import UserSerializer
+from rest_framework.exceptions import PermissionDenied, NotFound
+from .serializers.common import UserSerializer, userCapitalSerializer
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
@@ -50,3 +51,16 @@ class LoginView(APIView):
             'token': token,
             'message': f"Welcome back {user_to_login.first_name}"
         }, status.HTTP_202_ACCEPTED)
+
+
+class UserDetailView(APIView):
+    def get_user(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise NotFound(detail="Festival not found")
+
+    def get(self, _request, pk):
+        user = self.get_user(pk)
+        serialized_user = userCapitalSerializer(user)
+        return Response(serialized_user.data, status=status.HTTP_200_OK)

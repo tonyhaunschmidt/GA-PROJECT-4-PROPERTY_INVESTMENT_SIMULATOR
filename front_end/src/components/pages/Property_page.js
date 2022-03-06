@@ -23,32 +23,52 @@ const PropertyPage = () => {
     improvementCost: 0
   })
   const [popUpToShow, setPopUpToShow] = useState('none')
-  const [offerFormData, setOfferFormData] = useState({
-    property: id,
-    owner: getPayload.sub,
-    mortgage: 0,
-    offer_value: 0,
-    stamp_duty: 0,
-    fees: 2000,
-    accepted: false,
-    retracted: false,
-  })
-  const [mortgageRequest, setMortgageRequest] = useState({
-    property: id,
-    owner: getPayload.sub,
-    LTV: 75,
-    loan_value: 0,
-    term_expirary: 0,
-    interest: 5,
-  })
+  const [popUpMessage, setPopUpMessage] = useState([])
+  const [offerFormData, setOfferFormData] = useState({})
+  const [mortgageRequest, setMortgageRequest] = useState({})
   const [offerInputError, setOfferInputError] = useState('')
+  const [currentUser, setCurrentUser] = useState({})
+
 
   useEffect(() => {
     const getProperty = async () => {
       try {
         const { data } = await axios.get(`/api/properties/${id}`)
         setProperty(data)
-        console.log(data)
+        if (data.level === 1) {
+          const imagesArray = data.images_level1.split('&')
+          const paragraphArray = data.long_description_level1.split('$%')
+          setLevel({
+            level: 1,
+            imageArray: imagesArray,
+            shortDescription: data.short_description_level1,
+            longDescriptionParagraphs: paragraphArray,
+            baseRate: data.base_rate_level1,
+            improvementCost: data.level1_improvement_cost
+          })
+        } else if (data.level === 2) {
+          const imagesArray = data.images_level2.split('&')
+          const paragraphArray = data.long_description_level2.split('$%')
+          setLevel({
+            level: 2,
+            imageArray: imagesArray,
+            shortDescription: data.short_description_level2,
+            longDescriptionParagraphs: paragraphArray,
+            baseRate: data.base_rate_level2,
+            improvementCost: data.level2_improvement_cost
+          })
+        } else if (data.level === 3) {
+          const imagesArray = data.images_level3.split('&')
+          const paragraphArray = data.long_description_level3.split('$%')
+          setLevel({
+            level: 3,
+            imageArray: imagesArray,
+            shortDescription: data.short_description_level3,
+            longDescriptionParagraphs: paragraphArray,
+            baseRate: data.base_rate_level3,
+            improvementCost: 'no improvement'
+          })
+        }
       } catch (err) {
         console.log(err)
       }
@@ -59,62 +79,37 @@ const PropertyPage = () => {
 
 
   useEffect(() => {
-    if (property.level === 1) {
-      const imagesArray = property.images_level1.split('&')
-      const paragraphArray = property.long_description_level1.split('$%')
-      setLevel({
-        level: 1,
-        imageArray: imagesArray,
-        shortDescription: property.short_description_level1,
-        longDescriptionParagraphs: paragraphArray,
-        baseRate: property.base_rate_level1,
-        improvementCost: property.level1_improvement_cost
-      })
-    } else if (property.level === 2) {
-      const imagesArray = property.images_level2.split('&')
-      const paragraphArray = property.long_description_level2.split('$%')
-      setLevel({
-        level: 2,
-        imageArray: imagesArray,
-        shortDescription: property.short_description_level2,
-        longDescriptionParagraphs: paragraphArray,
-        baseRate: property.base_rate_level2,
-        improvementCost: property.level2_improvement_cost
-      })
-    } else if (property.level === 3) {
-      const imagesArray = property.images_level3.split('&')
-      const paragraphArray = property.long_description_level3.split('$%')
-      setLevel({
-        level: 3,
-        imageArray: imagesArray,
-        shortDescription: property.short_description_level3,
-        longDescriptionParagraphs: paragraphArray,
-        baseRate: property.base_rate_level3,
-        improvementCost: 'no improvement'
-      })
+    const getUser = async () => {
+      try {
+        const { data } = await axios.get(`/api/auth/${getPayload().sub}`)
+        setCurrentUser(data)
+      } catch (err) {
+        console.log(err)
+      }
     }
+    getUser()
   }, [property])
 
   const displayPopUp = (e) => {
     setPopUpToShow(e.target.value)
-    if (e.target.value === 'mortgageReject' || e.target.value === 'none') {
+    if (e.target.value === 'offerForm') {
       setOfferFormData({
         property: id,
         owner: getPayload.sub,
         mortgage: 0,
-        offer_value: 0,
+        offer_value: '',
         stamp_duty: 0,
-        fees: 2000,
+        fees: 1000,
         accepted: false,
         retracted: false,
       })
       setMortgageRequest({
         property: id,
         owner: getPayload.sub,
-        LTV: 75,
+        LTV: '0',
         loan_value: 0,
         term_expirary: 0,
-        interest: 5,
+        interest: '5',
       })
     }
   }
@@ -172,8 +167,40 @@ const PropertyPage = () => {
       setOfferFormData({ ...offerFormData, fees: fee + 1000 })
       setMortgageRequest({ ...mortgageRequest, [e.target.name]: e.target.value })
     }
-    console.log(offerFormData, mortgageRequest)
+  }
 
+  const handleOfferApplication = () => {
+    if (offerFormData.offer_value === '') {
+      setOfferInputError('You must input a value before you submit an offer')
+    } else if (currentUser.capital + mortgageRequest.loan_value - offerFormData.offer_value - offerFormData.stamp_duty - offerFormData.fees < 0) {
+      if (mortgageRequest.LTV === '75') {
+        setPopUpMessage([
+          'We regret to inform you that your mortgage application has been rejected.',
+          'You must have sufficient funds to pay your deposit, stamp duty and additonal fees.',
+          'regretfully, on this basis, we can not presently offer you a mortgage at this value.'
+        ])
+      } else if (mortgageRequest.LTV === '0') { }
+      setPopUpMessage([
+        'You must have sufficient funds to pay your deposit, stamp duty and legal fees.'
+      ])
+      setPopUpToShow('mortgageReject')
+    } else if (level.baseRate === 0 && mortgageRequest.LTV === '75') {
+      setPopUpMessage([
+        'We regret to inform you that your mortgage application has been rejected.',
+        "BTL mortgages are subject to the property's habitability and this property is not presently habitable. A mortgage will no be offered for this property in it's current state"
+      ])
+      setPopUpToShow('mortgageReject')
+    } else if (level.baseRate < Math.ceil(mortgageRequest.loan_value * ((mortgageRequest.interest / 100) / 12)) && mortgageRequest.LTV === '75') {
+      setPopUpMessage([
+        'We regret to inform you that your mortgage application has been rejected.',
+        'After evaluating the potential rental income of this property, it is not viable as a sound investment.'
+      ])
+      setPopUpToShow('mortgageReject')
+    } else {
+      //add mortgage
+      //add offer with mortgage id
+      setPopUpToShow('offerMade')
+    }
   }
 
   return (
@@ -200,10 +227,10 @@ const PropertyPage = () => {
               <p key={index}>{paragraph}</p>
             )}
             <button value={'offerForm'} onClick={displayPopUp}>MAKE AN OFFER</button>
+            <button>FAVOURITE</button>
 
             {popUpToShow === 'offerForm' ?
               <div className='pop_up'>
-
                 <h4>OFFER FORM</h4>
                 <label for='offer_value'>Offer Value (£)</label>
                 <input type='number' min='1' step='1' name='offer_value' onChange={handleOfferFormInput} />
@@ -249,21 +276,31 @@ const PropertyPage = () => {
                 </ul>
                 <ul>
                   <li>{formatter.format(Math.ceil(mortgageRequest.loan_value * ((mortgageRequest.interest / 100) / 12)))}</li>
-                  <li>Capital</li>
+                  <li>{formatter.format(currentUser.capital + mortgageRequest.loan_value - offerFormData.offer_value - offerFormData.stamp_duty - offerFormData.fees)}</li>
                 </ul>
-                <button>SUBMIT OFFER</button>
+                <button onClick={handleOfferApplication}>SUBMIT OFFER</button>
                 <button value={'none'} onClick={displayPopUp}>CANCEL</button>
-
               </div>
               :
               popUpToShow === 'mortgageReject' ?
                 <div className='pop_up'>
+                  <h4>APPLICATION REJECTED</h4>
+                  {popUpMessage.map((paragraph, index) =>
+                    <p key={index}>{paragraph}</p>
+                  )}
                   <button value={'offerForm'} onClick={displayPopUp}>AMEND OFFER</button>
+                  <button value={'none'} onClick={displayPopUp}>CANCEL</button>
                 </div>
                 :
                 popUpToShow === 'offerMade' ?
                   <div className='pop_up'>
-
+                    <h4>OFFER SENT</h4>
+                    <p>Congratulations!!</p>
+                    <p>Your purchase offer has been submitted</p>
+                    <p>Your offer has been sent to the property owner who will review.</p>
+                    <p>You will be notified by email if your offer has been accepted or rejected.</p>
+                    <p>please check your emails for comfirmation of the offer being sent.</p>
+                    <button value={'none'} onClick={displayPopUp}>OK</button>
                   </div>
                   : <></>
             }

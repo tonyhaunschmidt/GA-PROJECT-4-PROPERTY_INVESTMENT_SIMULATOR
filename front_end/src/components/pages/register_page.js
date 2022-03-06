@@ -31,7 +31,7 @@ const RegisterPage = () => {
   return (
     <section className='register_page'>
       <form onSubmit={handleSubmit}>
-        <input type='text' name='fist_name' placeholder='First Name' onChange={handleFormInput} />
+        <input type='text' name='first_name' placeholder='First Name' onChange={handleFormInput} />
         <input type='text' name='last_name' placeholder='Last name' onChange={handleFormInput} />
         <input type='text' name='username' placeholder='Username' onChange={handleFormInput} />
         <input type='text' name='email' placeholder='Email' onChange={handleFormInput} />
