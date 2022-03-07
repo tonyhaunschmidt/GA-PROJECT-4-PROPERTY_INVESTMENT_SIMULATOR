@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { getPayload, getTokenFromLocalStorage } from '../helpers/authHelper'
 
 const PropertyPage = () => {
+
+  const navigate = useNavigate()
 
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
@@ -29,6 +31,9 @@ const PropertyPage = () => {
   const [offerInputError, setOfferInputError] = useState('')
   const [currentUser, setCurrentUser] = useState({})
   const [propertyOffers, setPropertyOffers] = useState([])
+  const [userHasActiveOffer, setUserHasActiveOffer] = useState(false)
+  const [usersActiveOffer, setUsersActiveOffer] = useState({})
+  const [activePropertyOffers, setActivePropertyOffers] = useState([])
 
 
   useEffect(() => {
@@ -70,9 +75,8 @@ const PropertyPage = () => {
             improvementCost: 'no improvement'
           })
         }
-        const offers = await axios.get(`/api/offers/propertyspecific/${id}`)
-        setPropertyOffers(offers.data)
-        console.log(offers.data)
+
+
       } catch (err) {
         console.log(err)
       }
@@ -87,6 +91,18 @@ const PropertyPage = () => {
       try {
         const { data } = await axios.get(`/api/auth/${getPayload().sub}`)
         setCurrentUser(data)
+        const offers = await axios.get(`/api/offers/propertyspecific/${id}`)
+        setPropertyOffers(offers.data)
+        setUserHasActiveOffer(offers.data.some(offer => offer.owner === data.id && offer.retracted === false))
+        const activeOffers = []
+        for (let i = 0; i < offers.data.length; i++) {
+          if (offers.data[i].retracted === false) {
+            activeOffers.push(offers.data[i])
+          }
+        }
+        console.log(activeOffers)
+        setActivePropertyOffers(activeOffers)
+        setUsersActiveOffer(activeOffers.find(offer => offer.owner === data.id))
       } catch (err) {
         console.log(err)
       }
@@ -227,6 +243,29 @@ const PropertyPage = () => {
     }
   }
 
+  const refeshPage = () => {
+    window.location.reload(false);
+  }
+
+  const retractOffer = async () => {
+    await axios.put(`/api/offers/${usersActiveOffer.id}`, { ...usersActiveOffer, retracted: true, mortgage: usersActiveOffer.mortgage.id }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    window.location.reload(false);
+  }
+
+  const propertyPurchase = async () => {
+    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    window.location.reload(false);
+  }
+
+
   return (
     property.id ?
       property.owner === getPayload().sub ?
@@ -247,11 +286,24 @@ const PropertyPage = () => {
             <h3>{level.shortDescription}</h3>
             <h4>{property.address}</h4>
             <h1>{formatter.format(property.asking_price)}</h1>
+            <button>FAVOURITE</button>
             {level.longDescriptionParagraphs.map((paragraph, index) =>
               <p key={index}>{paragraph}</p>
             )}
-            <button value={'offerForm'} onClick={displayPopUp}>MAKE AN OFFER</button>
-            <button>FAVOURITE</button>
+            {userHasActiveOffer ?
+              usersActiveOffer.accepted ?
+                <>
+                  <h4>YOUR OFFER HAS BEEN ACCEPTED</h4>
+                  <button value={'confirmPurchase'} onClick={displayPopUp}>CONFIRM PURCHASE</button>
+                  <button value={'retractOffer'} onClick={displayPopUp}>RETRACT OFFER</button>
+                </>
+                :
+                <button value={'retractOffer'} onClick={displayPopUp}>RETRACT OFFER</button>
+              :
+              <button value={'offerForm'} onClick={displayPopUp}>MAKE AN OFFER</button>
+            }
+
+
 
             {popUpToShow === 'offerForm' ?
               <div className='pop_up'>
@@ -324,9 +376,40 @@ const PropertyPage = () => {
                     <p>Your offer has been sent to the property owner who will review.</p>
                     <p>You will be notified by email if your offer has been accepted or rejected.</p>
                     <p>please check your emails for comfirmation of the offer being sent.</p>
-                    <button value={'none'} onClick={displayPopUp}>OK</button>
+                    <button onClick={refeshPage}>OK</button>
                   </div>
-                  : <></>
+                  :
+                  popUpToShow === 'retractOffer' ?
+                    <div className='pop_up'>
+                      <h4>RETRACT OFFER</h4>
+                      <p>Property- {property.address}</p>
+                      <p>Value- {formatter.format(usersActiveOffer.offer_value)}</p>
+                      <p>Offer made on- {usersActiveOffer.time_stamp}</p>
+                      <button onClick={retractOffer}>CONFIRM</button>
+                      <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                    </div>
+                    :
+                    popUpToShow === 'confirmPurchase' ?
+                      <div className='pop_up'>
+                        <h4>CONFIRM PURCHASE</h4>
+                        <p>Property- {property.address}</p>
+                        <p>Value- {formatter.format(usersActiveOffer.offer_value)}</p>
+                        <p>Offer Made On- {usersActiveOffer.time_stamp}</p>
+                        <p>mortgage details</p>
+                        <p>Your Capital- {formatter.format(currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees)}</p>
+                        {currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees >= 0 ?
+                          <>
+                            <button onClick={propertyPurchase}>CONFIRM</button>
+                            <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                          </>
+                          :
+                          <>
+                            <p>You have insufficient funds for this transaction</p>
+                            <button value={'none'} onClick={displayPopUp}>BACK</button>
+                          </>
+                        }
+                      </div>
+                      : <></>
             }
 
           </section>
