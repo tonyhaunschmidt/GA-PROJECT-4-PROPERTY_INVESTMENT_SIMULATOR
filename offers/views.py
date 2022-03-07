@@ -32,3 +32,12 @@ class OfferListView(APIView):
                 {"detail": "Unprocessable Entity"},
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
+
+
+class propertyOffersListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        offers = Offer.objects.filter(property=pk)
+        serialized_properties = OfferSerializer(offers, many=True)
+        return Response(serialized_properties.data, status=status.HTTP_200_OK)

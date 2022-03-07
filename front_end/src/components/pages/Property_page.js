@@ -28,6 +28,7 @@ const PropertyPage = () => {
   const [mortgageRequest, setMortgageRequest] = useState({})
   const [offerInputError, setOfferInputError] = useState('')
   const [currentUser, setCurrentUser] = useState({})
+  const [propertyOffers, setPropertyOffers] = useState([])
 
 
   useEffect(() => {
@@ -69,6 +70,9 @@ const PropertyPage = () => {
             improvementCost: 'no improvement'
           })
         }
+        const offers = await axios.get(`/api/offers/propertyspecific/${id}`)
+        setPropertyOffers(offers.data)
+        console.log(offers.data)
       } catch (err) {
         console.log(err)
       }
