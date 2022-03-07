@@ -17,7 +17,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const { data } = await axios.post('/api/auth/login/', formData)
+      const { data } = await axios.post('/api/auth/login', formData)
       setTokenToLocalStorage(data.token)
       navigate('/myportfolio')
     } catch (err) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import axios from 'axios'
-import { getPayload } from '../helpers/authHelper'
+import { getPayload, getTokenFromLocalStorage } from '../helpers/authHelper'
 
 const PropertyPage = () => {
 
@@ -95,7 +95,7 @@ const PropertyPage = () => {
     if (e.target.value === 'offerForm') {
       setOfferFormData({
         property: id,
-        owner: getPayload.sub,
+        owner: currentUser.id,
         mortgage: 0,
         offer_value: '',
         stamp_duty: 0,
@@ -105,11 +105,11 @@ const PropertyPage = () => {
       })
       setMortgageRequest({
         property: id,
-        owner: getPayload.sub,
-        LTV: '0',
+        owner: currentUser.id,
+        LTV: 0,
         loan_value: 0,
-        term_expirary: 0,
-        interest: '5',
+        term_expiry: '',
+        interest: 5,
       })
     }
   }
@@ -125,7 +125,7 @@ const PropertyPage = () => {
         stampDuty = Math.ceil(e.target.value * 0.08)
       } else if (e.target.value < 1500000) {
         stampDuty = Math.ceil(e.target.value * 0.13)
-      } else if (e.target.value > 1500000) {
+      } else if (e.target.value >= 1500000) {
         stampDuty = Math.ceil(e.target.value * 0.15)
       }
       const loanValue = Math.floor(e.target.value * (mortgageRequest.LTV / 100))
@@ -197,8 +197,28 @@ const PropertyPage = () => {
       ])
       setPopUpToShow('mortgageReject')
     } else {
-      //add mortgage
-      //add offer with mortgage id
+      const mortgageExpiry = new Date()
+      mortgageExpiry.setDate(mortgageExpiry.getDate() + 30) //change this once I have coded the virtual calendar
+      console.log(mortgageExpiry)
+      const postMortgageAndOffer = async () => {
+        try {
+          const { data } = await axios.post('/api/mortgages', { ...mortgageRequest, term_expiry: mortgageExpiry }, {
+            headers: {
+              Authorization: `Bearer ${getTokenFromLocalStorage()}`
+            }
+          })
+
+          await axios.post('/api/offers', { ...offerFormData, mortgage: data.id }, {
+            headers: {
+              Authorization: `Bearer ${getTokenFromLocalStorage()}`
+            }
+          })
+          console.log(data)
+        } catch (err) {
+          console.log(err)
+        }
+      }
+      postMortgageAndOffer()
       setPopUpToShow('offerMade')
     }
   }

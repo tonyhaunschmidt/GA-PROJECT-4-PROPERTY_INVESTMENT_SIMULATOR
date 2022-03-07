@@ -16,7 +16,7 @@ class Mortgage(models.Model):
     )
     LTV = models.IntegerField(default=None)
     loan_value = models.IntegerField(default=None)
-    term_expiary = models.DateTimeField(default=None)
+    term_expiry = models.DateTimeField(default=None)
     interest = models.IntegerField(default=None)
 
     def __str__(self):
