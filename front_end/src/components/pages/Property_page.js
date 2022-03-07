@@ -213,7 +213,7 @@ const PropertyPage = () => {
     } else if (level.baseRate === 0 && mortgageRequest.LTV === '75') {
       setPopUpMessage([
         'We regret to inform you that your mortgage application has been rejected.',
-        "BTL mortgages are subject to the property's habitability and this property is not presently habitable. A mortgage will no be offered for this property in it's current state"
+        "BTL mortgages are subject to the property's habitability and this property is not presently habitable. A mortgage will not be offered for this property in it's current state"
       ])
       setPopUpToShow('mortgageReject')
     } else if (level.baseRate < Math.ceil(mortgageRequest.loan_value * ((mortgageRequest.interest / 100) / 12)) && mortgageRequest.LTV === '75') {
@@ -236,7 +236,6 @@ const PropertyPage = () => {
               Authorization: `Bearer ${getTokenFromLocalStorage()}`
             }
           })
-          console.log(data)
         } catch (err) {
           console.log(err)
         }
@@ -263,7 +262,7 @@ const PropertyPage = () => {
     const purchaseWithMortge = usersActiveOffer.mortgage.LTV === 75 ? true : false
 
     //update property owner and mortgage stats
-    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false, mortgaged: purchaseWithMortge }, {
+    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false, mortgaged: purchaseWithMortge, ownership_term: property.ownership_term + 1 }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -290,20 +289,64 @@ const PropertyPage = () => {
       }
     })
 
+    await axios.post('/api/transactions', {
+      type: 'mortgage',
+      property: property.id,
+      owner: currentUser.id,
+      amount: usersActiveOffer.mortgage.loan_value,
+      stamp_duty: 0,
+      fees: 0,
+      property_ownership_term: property.ownership_term + 1
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+
+
+
     const currentOwner = await axios.get(`/api/auth/${property.owner}`)
     let ownersCapital = currentOwner.data.capital + usersActiveOffer.offer_value
     //cancel current owners mortgage
     if (ownersActiveMortgage) {
+      console.log(ownersActiveMortgage)
       await axios.put(`/api/mortgages/${ownersActiveMortgage.id}`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
-      ownersCapital = ownersCapital - userHasActiveOffer.mortgage.loan_value
+      ownersCapital = ownersCapital - ownersActiveMortgage.loan_value
+
+      await axios.post('/api/transactions', {
+        type: 'paid_mortgage',
+        property: property.id,
+        owner: property.owner,
+        amount: ownersActiveMortgage.loan_value,
+        stamp_duty: 0,
+        fees: 0,
+        property_ownership_term: property.ownership_term
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
     }
 
     //update current owner capital ->will need to pay off bank too (mortgage)
     await axios.put(`/api/auth/${property.owner}`, { ...currentOwner.data, capital: ownersCapital }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    await axios.post('/api/transactions', {
+      type: 'sold_property',
+      property: property.id,
+      owner: property.owner,
+      amount: usersActiveOffer.offer_amount,
+      stamp_duty: 0,
+      fees: 0,
+      property_ownership_term: property.ownership_term
+    }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -319,9 +362,19 @@ const PropertyPage = () => {
     }
 
     //post transaction to database
-
-    ///  THIS IS WHAT TO DO NEXT!!
-
+    await axios.post('/api/transactions', {
+      type: 'property_purchase',
+      property: property.id,
+      owner: currentUser.id,
+      amount: usersActiveOffer.offer_value,
+      stamp_duty: usersActiveOffer.stamp_duty,
+      fees: usersActiveOffer.fees,
+      property_ownership_term: property.ownership_term + 1
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
     window.location.reload(false);
   }
 

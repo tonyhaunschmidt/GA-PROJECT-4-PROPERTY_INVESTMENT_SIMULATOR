@@ -19,7 +19,8 @@ class Transaction(models.Model):
     amount = models.IntegerField(default=None)
     stamp_duty = models.IntegerField(default=None)
     fees = models.IntegerField(default=None)
-    time_stamp = models.DateTimeField(default=None)
+    time_stamp = models.DateTimeField(auto_now_add=True)
+    property_ownership_term = models.IntegerField(default=None)
 
     def __str__(self):
         return f"{self.property} {self.type}"

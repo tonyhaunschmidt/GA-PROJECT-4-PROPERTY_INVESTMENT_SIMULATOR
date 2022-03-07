@@ -18,7 +18,6 @@ class OfferListView(APIView):
 
     def post(self, request):
         serialized_data = OfferSerializer(data=request.data)
-        print(request.data)
         try:
             serialized_data.is_valid()
             serialized_data.save()
