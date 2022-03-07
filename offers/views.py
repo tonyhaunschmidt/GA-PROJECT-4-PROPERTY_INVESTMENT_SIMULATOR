@@ -59,5 +59,5 @@ class propertyOffersListView(APIView):
 
     def get(self, _request, pk):
         offers = Offer.objects.filter(property=pk)
-        serialized_properties = PopulatedOfferSerializer(offers, many=True)
-        return Response(serialized_properties.data, status=status.HTTP_200_OK)
+        serialized_offers = PopulatedOfferSerializer(offers, many=True)
+        return Response(serialized_offers.data, status=status.HTTP_200_OK)

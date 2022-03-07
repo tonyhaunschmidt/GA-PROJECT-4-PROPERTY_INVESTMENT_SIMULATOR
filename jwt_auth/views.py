@@ -64,3 +64,16 @@ class UserDetailView(APIView):
         user = self.get_user(pk)
         serialized_user = userCapitalSerializer(user)
         return Response(serialized_user.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        user_to_update = self.get_user(pk=pk)
+        serialized_user = userCapitalSerializer(
+            user_to_update, data=request.data)
+        try:
+            serialized_user.is_valid()
+            serialized_user.save()
+            return Response(serialized_user.data, status=status.HTTP_202_ACCEPTED)
+        except AssertionError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        except:
+            return Response("Unprocessable Entity", status=status.HTTP_422_UNPROCESSABLE_ENTITY)

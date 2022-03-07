@@ -34,6 +34,10 @@ const PropertyPage = () => {
   const [userHasActiveOffer, setUserHasActiveOffer] = useState(false)
   const [usersActiveOffer, setUsersActiveOffer] = useState({})
   const [activePropertyOffers, setActivePropertyOffers] = useState([])
+  const [propertyMortgages, setPropertyMortgages] = useState([])
+  const [ownersActiveMortgage, setOwnersActiveMortgage] = useState({})
+
+
 
 
   useEffect(() => {
@@ -100,9 +104,11 @@ const PropertyPage = () => {
             activeOffers.push(offers.data[i])
           }
         }
-        console.log(activeOffers)
         setActivePropertyOffers(activeOffers)
         setUsersActiveOffer(activeOffers.find(offer => offer.owner === data.id))
+        const mortgages = await axios.get(`/api/mortgages/propertyspecific/${id}`)
+        setPropertyMortgages(mortgages.data)
+        setOwnersActiveMortgage(mortgages.data.find(mortgage => mortgage.owner === property.owner && mortgage.term_expiry !== "1992-10-13T16:00:00Z"))
       } catch (err) {
         console.log(err)
       }
@@ -217,12 +223,9 @@ const PropertyPage = () => {
       ])
       setPopUpToShow('mortgageReject')
     } else {
-      const mortgageExpiry = new Date()
-      mortgageExpiry.setDate(mortgageExpiry.getDate() + 30) //change this once I have coded the virtual calendar
-      console.log(mortgageExpiry)
       const postMortgageAndOffer = async () => {
         try {
-          const { data } = await axios.post('/api/mortgages', { ...mortgageRequest, term_expiry: mortgageExpiry }, {
+          const { data } = await axios.post('/api/mortgages', { ...mortgageRequest, term_expiry: "1992-10-13T16:00:00" }, {
             headers: {
               Authorization: `Bearer ${getTokenFromLocalStorage()}`
             }
@@ -257,11 +260,68 @@ const PropertyPage = () => {
   }
 
   const propertyPurchase = async () => {
-    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false }, {
+    const purchaseWithMortge = usersActiveOffer.mortgage.LTV === 75 ? true : false
+
+    //update property owner and mortgage stats
+    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false, mortgaged: purchaseWithMortge }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
+    //update user capital
+    const NewOwnerCapital = currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: NewOwnerCapital }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    //start mortgage
+    let mortgageExpiry
+    if (usersActiveOffer.mortgage.LTV === 75) {
+      mortgageExpiry = new Date()
+      mortgageExpiry.setDate(mortgageExpiry.getDate() + 30) //change this once I have coded the virtual calendar
+    } else {
+      mortgageExpiry = "1992-10-13T16:00:00"
+    }
+
+    await axios.put(`/api/mortgages/${usersActiveOffer.mortgage.id}`, { ...usersActiveOffer.mortgage, term_expiry: mortgageExpiry }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+
+    const currentOwner = await axios.get(`/api/auth/${property.owner}`)
+    let ownersCapital = currentOwner.data.capital + usersActiveOffer.offer_value
+    //cancel current owners mortgage
+    if (ownersActiveMortgage) {
+      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      ownersCapital = ownersCapital - userHasActiveOffer.mortgage.loan_value
+    }
+
+    //update current owner capital ->will need to pay off bank too (mortgage)
+    await axios.put(`/api/auth/${property.owner}`, { ...currentOwner.data, capital: ownersCapital }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+
+    //retract all offers
+    for (let i = 0; i < activePropertyOffers.length; i++) {
+      await axios.put(`/api/offers/${activePropertyOffers[i].id}`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
+
+    //post transaction to database
+
+    ///  THIS IS WHAT TO DO NEXT!!
+
     window.location.reload(false);
   }
 

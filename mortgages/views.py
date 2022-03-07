@@ -32,3 +32,33 @@ class MortgageListView(APIView):
                 {"detail": "Unprocessable Entity"},
                 status=status.HTTP_422_UNPROCESSABLE_ENTITY
             )
+
+
+class MortgageDetailView(APIView):
+    def get_mortgage(self, pk):
+        try:
+            return Mortgage.objects.get(pk=pk)
+        except Mortgage.DoesNotExist:
+            raise NotFound(detail="Mortgage not found")
+
+    def put(self, request, pk):
+        mortgage_to_update = self.get_mortgage(pk=pk)
+        serialized_mortgage = MortgageSerializer(
+            mortgage_to_update, data=request.data)
+        try:
+            serialized_mortgage.is_valid()
+            serialized_mortgage.save()
+            return Response(serialized_mortgage.data, status=status.HTTP_202_ACCEPTED)
+        except AssertionError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        except:
+            return Response("Unprocessable Entity", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+class propertyMortgagesListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        mortgages = Mortgage.objects.filter(property=pk)
+        serialized_mortgages = MortgageSerializer(mortgages, many=True)
+        return Response(serialized_mortgages.data, status=status.HTTP_200_OK)
