@@ -36,8 +36,9 @@ const PropertyPage = () => {
   const [activePropertyOffers, setActivePropertyOffers] = useState([])
   const [propertyMortgages, setPropertyMortgages] = useState([])
   const [ownersActiveMortgage, setOwnersActiveMortgage] = useState({})
-
-
+  const [currentTermPropertyTransactions, setCurrentTermPropertyTransactions] = useState([])
+  const [workplaceToDisplay, setWorkplaceToDisplay] = useState('none')
+  const [askingPrice, setAskingPrice] = useState('')
 
 
   useEffect(() => {
@@ -109,6 +110,8 @@ const PropertyPage = () => {
         const mortgages = await axios.get(`/api/mortgages/propertyspecific/${id}`)
         setPropertyMortgages(mortgages.data)
         setOwnersActiveMortgage(mortgages.data.find(mortgage => mortgage.owner === property.owner && mortgage.term_expiry !== "1992-10-13T16:00:00Z"))
+        const transactions = await axios.get(`/api/transactions/propertyspecific/${id}`)
+        setCurrentTermPropertyTransactions(transactions.data.filter(transaction => transaction.property_ownership_term === property.ownership_term))
       } catch (err) {
         console.log(err)
       }
@@ -378,13 +381,319 @@ const PropertyPage = () => {
     window.location.reload(false);
   }
 
+  const displayWorkplace = (e) => {
+    setWorkplaceToDisplay(e.target.value)
+  }
+
+  const updateAskingPrice = (e) => {
+    setAskingPrice(e.target.value)
+  }
+
+  const putOnMarket = async () => {
+    await axios.put(`/api/properties/${property.id}`, { ...property, for_sale: true, asking_price: askingPrice }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    window.location.reload(false);
+  }
+
+  const takeOffMarket = async () => {
+    await axios.put(`/api/properties/${property.id}`, { ...property, for_sale: false }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    //retract all offers
+    for (let i = 0; i < activePropertyOffers.length; i++) {
+      await axios.put(`/api/offers/${activePropertyOffers[i].id}`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
+    window.location.reload(false);
+  }
+
+  const rejectOffer = async (e) => {
+    console.log(e.target.value)
+    console.log(activePropertyOffers)
+    const offerToReject = activePropertyOffers.find(offer => offer.id == e.target.value)
+    console.log({ ...offerToReject, retracted: true })
+    await axios.put(`/api/offers/${e.target.value}`, { ...offerToReject, retracted: true, mortgage: offerToReject.mortgage.id }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    setActivePropertyOffers(activePropertyOffers.filter(offer => offer.id != e.target.value))
+  }
+
+  const acceptOffer = async (e) => {
+    //checks- can mortgage be paid off? 
+    //what happens to other offers? just change to offer accetped and you can accept as many offers as you'd like
+  }
+
+
+
+
+
 
   return (
     property.id ?
       property.owner === getPayload().sub ?
 
         <section className='property_page'> {/*************OWN PROPERTY*/}
-          <h1>owned {property.address}</h1>
+          {level.imageArray.map(imageURL =>
+            <img key={imageURL} src={imageURL} alt={`${property.address} ${level.imageArray.indexOf(imageURL) + 1}`} />
+          )}
+          <h2>{property.house_number_or_name} {property.address}</h2>
+          <h4>TRANSACTION HISTORY</h4>
+          <div>
+            {console.log(currentTermPropertyTransactions)}
+            {currentTermPropertyTransactions.map((transaction, index) =>
+              transaction.type === 'mortgage' ?
+                <div key={index}>
+                  <ul>
+                    <li>Mortgage Loan</li>
+                    <li>Loan Amount</li>
+                  </ul>
+                  <ul>
+                    <li>{transaction.time_stamp}</li>
+                    <li>{formatter.format(transaction.amount)}</li>
+                  </ul>
+                </div>
+                :
+                transaction.type === 'property_purchase' ?
+                  <div key={index}>
+                    <ul>
+                      <li>Property Purchase</li>
+                      <li>Purchase</li>
+                    </ul>
+                    <ul>
+                      <li>{transaction.time_stamp}</li>
+                      <li>{formatter.format(0 - transaction.amount)}</li>
+                    </ul>
+                  </div>
+                  :
+                  transaction.type === 'paid_mortgage' ?
+                    <div key={index}>
+                      <ul>
+                        <li>Full Mortgage Payment</li>
+                        <li>Payment</li>
+                      </ul>
+                      <ul>
+                        <li>{transaction.time_stamp}</li>
+                        <li>{formatter.format(0 - transaction.amount)}</li>
+                      </ul>
+                    </div>
+                    :
+                    transaction.type === 'income' ?
+                      <div key={index}>
+                        <ul>
+                          <li>Property Income</li>
+                          <li>Payment</li>
+                        </ul>
+                        <ul>
+                          <li>{transaction.time_stamp}</li>
+                          <li>{formatter.format(transaction.amount)}</li>
+                        </ul>
+                      </div>
+                      :
+                      transaction.type === 'valuation' ?
+                        <div key={index}>
+                          <ul>
+                            <li>New Valuation</li>
+                            <li>Valuation</li>
+                          </ul>
+                          <ul>
+                            <li>{transaction.time_stamp}</li>
+                            <li>{formatter.format(transaction.amount)}</li>
+                          </ul>
+                        </div>
+                        :
+                        transaction.type === 'improvement' ?
+                          <div key={index}>
+                            <ul>
+                              <li>Home Imporvement</li>
+                              <li>Payment</li>
+                            </ul>
+                            <ul>
+                              <li>{transaction.time_stamp}</li>
+                              <li>{formatter.format(0 - transaction.amount)}</li>
+                            </ul>
+                          </div>
+                          :
+                          <div key={index}>
+                            <ul>
+                              <li>{transaction.type}</li>
+                              <li>Payment</li>
+                            </ul>
+                            <ul>
+                              <li>{transaction.time_stamp}</li>
+                              <li>{formatter.format(0 - transaction.amount)}</li>
+                            </ul>
+                          </div>
+            )}
+          </div>
+          <hr />
+          <div>
+            <h4>MONTH BREAKDOWN</h4>
+            {ownersActiveMortgage ?
+              <div>
+                <h6>Mortgage</h6>
+                <ul>
+                  <li>Type</li>
+                  <li>LTV</li>
+                  <li>loan Value</li>
+                  <li>Term</li>
+                  <li>Remaining Term</li>
+                  <li>Interest</li>
+                  <li>Monthly Payments</li>
+                </ul>
+                <ul>
+                  <li>Interest Only (Fixed Rate)</li>
+                  <li>{ownersActiveMortgage.LTV}%</li>
+                  <li>{ownersActiveMortgage.loan_value}</li>
+                  <li>25 Years</li>
+                  <li>Remaining Term</li> {/*FORMAT AFTER VIRTUAL CALENDAR*/}
+                  <li>{ownersActiveMortgage.interest}%</li>
+                  <li>{formatter.format(Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))}</li>
+                </ul>
+              </div>
+              :
+              <></>}
+            {1 + 1 === 5 ?
+              <>{/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}</>
+              :
+              <div>
+                <h6>Letting</h6>
+                <ul>
+                  <li>Agent</li>
+                  <li>Monthly Fee</li>
+                  <li>Status</li>
+                  <li>Monthly Income</li>
+                </ul>
+                <ul>
+                  <li>You do not currenlty have a letting agent organised for this property</li>
+                  <li>£0</li>
+                  <li>VOID</li>
+                  <li>£0</li>
+                </ul>
+              </div>
+            }
+            <div>
+              <h6>CURRENT MONTH BREAKDOWN</h6>
+              <ul>
+                <li>Mortgage Payment</li>
+                <li>Rent Income</li>
+                <li>Void Bills</li> {/* ADD CONDITION FOR THIS NOT TO SHOW IF NOT VOID */}
+                <li>Letting Fee</li>
+                <li>TOTAL INCOME</li>
+              </ul>
+              <ul>
+                <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
+                <li>£0</li>{/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}
+                <li>{formatter.format(0 - property.void_upkeep)}</li>
+                <li>£0</li> {/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}
+                <li>-£438</li>
+              </ul>
+            </div>
+          </div>
+          <hr />
+          <div>
+            <ul>
+              <li>Total Money Invested</li>
+              <li>Borrowed Money</li>
+              <li>Owned Equity</li>
+              <li>Total Money Returned</li>
+              <li>Total Profit</li>
+            </ul>
+            <ul>
+              <li>Total Money Invested</li> {/*ADD STATE ABOVE TO CALULATE*/}
+              <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : '£0'}</li>
+              <li>Owned Equity</li> {/*ADD AFTER IMPLEMENTING REMORTGAGING FUNCTIONALITY*/}
+              <li>Total Money Returned</li> {/*ADD STATE ABOVE TO CALULATE*/}
+              <li>Total Profit</li>  {/*ADD STATE ABOVE TO CALULATE*/}
+            </ul>
+          </div>
+          <hr />
+          {property.for_sale ?
+            <div>
+              <h4>OFFERS</h4>
+              <p>Asking Price - {formatter.format(property.asking_price)}</p>
+              {activePropertyOffers.length ?
+                activePropertyOffers.map(offer =>
+                  <div key={offer.id}>
+                    <p>{formatter.format(offer.offer_value)}</p>
+                    <button onClick={acceptOffer} value={offer.id}>ACCEPT OFFER</button>{/* ADD AN 'ARE YOU SURE?'*/}
+                    <button onClick={rejectOffer} value={offer.id}>REJECT OFFER</button>{/* ADD AN 'ARE YOU SURE?'*/}
+                  </div>
+                )
+                :
+                <p>You currently do not have any offers for this property</p>
+              }
+              <button onClick={takeOffMarket}>TAKE OFF MARKET</button> {/* ADD AN 'ARE YOU SURE?' THIS WILL RETRACT ALL OFFERS*/}
+            </div>
+            :
+            <div>
+              <div>
+                <button value={'manageLetting'} onClick={displayWorkplace}>MANAGE LETTING</button>
+                <button value={'improvements'} onClick={displayWorkplace}>IMPROVEMENTS</button>
+                <button value={'getValuation'} onClick={displayWorkplace}>GET VALUATION (£500)</button> {/*ADD CONDITIONS FOR IF A VALUATION HAS ALREADY BEEN MADE IN THE LAST MONTH*/}
+                <button value={'remortgage'} onClick={displayWorkplace}>REMORTGAGE</button> {/*ADD CONDITION FOR IF A VALUATION HAS BEEN MADE IN THE LAST MONTH*/}
+                <button value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button> {/*ADD CONDITION IF MORTGAGE EXISTS*/}
+                <button value={'putOnMarket'} onClick={displayWorkplace}>PUT ON MARKET</button>
+              </div>
+              <div>
+                {workplaceToDisplay === 'manageLetting' ?
+                  <div>
+                    <h4>MANAGE LETTING</h4>
+
+                  </div>
+                  :
+                  workplaceToDisplay === 'improvements' ?
+                    <div>
+                      <h4>HOME IMPROVEMENTS</h4>
+
+                    </div>
+                    :
+                    workplaceToDisplay === 'getValuation' ?
+                      <div>
+                        <h4>VALUATION</h4>
+
+                      </div>
+                      :
+                      workplaceToDisplay === 'remortgage' ?
+                        <div>
+                          <h4>REMORTGAGE</h4>
+
+                        </div>
+                        :
+                        workplaceToDisplay === 'payMortgage' ?
+                          <div>
+                            <h4>PAY MORTGAGE</h4>
+
+                          </div>
+                          :
+                          workplaceToDisplay === 'putOnMarket' ?
+                            <div>
+                              <h4>PUT ON MARKET</h4>
+                              <label for='offer_value'>Asking Price (£)</label>
+                              <input type='number' min='1' step='1' name='offer_value' onChange={updateAskingPrice} />
+                              <button onClick={putOnMarket}>CONFIRM</ button>
+                              <p>Once your property is on the market you can no longer manage lettings, make improvements or remortgage</p>
+                            </div>
+                            :
+                            <></>}
+              </div>
+            </div>
+          }
+
+
+
+
+
+
         </section>
 
 
@@ -425,7 +734,7 @@ const PropertyPage = () => {
                 <input type='number' min='1' step='1' name='offer_value' onChange={handleOfferFormInput} />
                 <p>{offerInputError}</p>
                 <fieldset onChange={handleOfferFormInput} default='75'>
-                  <label for='75'>Mortgage (25% deposit)</label>
+                  <label for='75'>Mortgage (25% deposit | 25 years)</label>
                   <input type='radio' value='75' name='LTV' />
                   <fieldset onChange={handleOfferFormInput} disabled={mortgageRequest.LTV === '0' ? true : false}>
                     <div>
