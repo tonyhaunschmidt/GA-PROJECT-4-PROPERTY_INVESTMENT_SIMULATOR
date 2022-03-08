@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/mortgages', include('mortgages.urls')),
     path('api/offers', include('offers.urls')),
     path('api/transactions', include('transactions.urls')),
+    path('api/lettings', include('lettings.urls')),
 ]

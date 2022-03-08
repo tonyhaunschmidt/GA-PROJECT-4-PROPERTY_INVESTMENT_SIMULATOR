@@ -41,6 +41,8 @@ const PropertyPage = () => {
   const [askingPrice, setAskingPrice] = useState('')
   const [offerToAccept, setOfferToAccept] = useState({})
   const [offerToReject, setOfferToReject] = useState({})
+  const [currentLetAgent, setCurrentLetAgent] = useState({ grade: 'none' })
+  const [selectedLetAgent, setSelectedLetAgent] = useState({})
 
 
   useEffect(() => {
@@ -114,6 +116,8 @@ const PropertyPage = () => {
         setOwnersActiveMortgage(mortgages.data.find(mortgage => mortgage.owner === property.owner && mortgage.term_expiry !== "1992-10-13T16:00:00Z"))
         const transactions = await axios.get(`/api/transactions/propertyspecific/${id}`)
         setCurrentTermPropertyTransactions(transactions.data.filter(transaction => transaction.property_ownership_term === property.ownership_term))
+        const lettings = await axios.get(`/api/lettings/propertyspecific/${id}`)
+        lettings.data.length && setCurrentLetAgent(lettings.data.find(letting => letting.current === true))
       } catch (err) {
         console.log(err)
       }
@@ -344,20 +348,6 @@ const PropertyPage = () => {
       }
     })
 
-
-
-    console.log({
-      type: 'sold_property',
-      property: property.id,
-      owner: property.owner,
-      amount: usersActiveOffer.offer_value,
-      stamp_duty: 0,
-      fees: 0,
-      property_ownership_term: property.ownership_term
-    })
-    console.log(usersActiveOffer)
-
-
     await axios.post('/api/transactions', {
       type: 'sold_property',
       property: property.id,
@@ -481,6 +471,41 @@ const PropertyPage = () => {
     })
     setPopUpToShow('none')
   }
+
+  const handleLetSelect = (e) => {
+    setSelectedLetAgent({
+      property: property.id,
+      owner: currentUser.id,
+      current: true,
+      grade: e.target.value,
+      void: true,
+      fixed_void: "1992-10-13T16:00:00"
+    })
+    setPopUpMessage('')
+  }
+
+  const handleLettingChange = async () => {
+    let fixedVoid = "1992-10-13T16:00:00"
+    if (currentLetAgent.fixed_void) {
+      fixedVoid = currentLetAgent.fixed_void
+      await axios.put(`/api/lettings/${currentLetAgent.id}`, { ...currentLetAgent, current: false }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
+    if (selectedLetAgent.property) {
+      await axios.post('/api/lettings', { ...selectedLetAgent, fixed_void: fixedVoid }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    } else {
+      setPopUpMessage('You must select a letting agent')
+    }
+    window.location.reload(false);
+  }
+
 
 
 
@@ -610,25 +635,52 @@ const PropertyPage = () => {
               </div>
               :
               <></>}
-            {1 + 1 === 5 ?
-              <>{/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}</>
-              :
-              <div>
-                <h6>Letting</h6>
+
+            <div>
+              <h6>Letting</h6>
+              <ul>
+                <li>Agent</li>
+                <li>Monthly Fee</li>
+                <li>Status</li>
+                <li>Monthly Income</li>
+              </ul>
+              {currentLetAgent.id ?
                 <ul>
-                  <li>Agent</li>
-                  <li>Monthly Fee</li>
-                  <li>Status</li>
-                  <li>Monthly Income</li>
+                  {currentLetAgent.grade === 'A' ?
+                    <li>Premium Gold Lets</li>
+                    : currentLetAgent.grade === 'B' ?
+                      <li>Middle Lettings</li>
+                      : currentLetAgent.grade === 'C' &&
+                      <li>Lettings 'R' us</li>
+                  }
+                  {currentLetAgent.grade === 'A' ?
+                    <li>{formatter.format(property.base_rate_level2 * 1.3 * 0.2)}</li>
+                    : currentLetAgent.grade === 'B' ?
+                      <li>{formatter.format(property.base_rate_level2 * 1.2 * 0.15)}</li>
+                      : currentLetAgent.grade === 'C' &&
+                      <li>{formatter.format(property.base_rate_level2 * 1.1 * 0.1)}</li>
+                  }
+                  <li>{currentLetAgent.void ? 'VOID' : 'LET'}</li>
+                  {currentLetAgent.void ?
+                    <li>£0</li>
+                    : currentLetAgent.grade === 'A' ?
+                      <li>{formatter.format(property.base_rate_level2 * 1.3)}</li>
+                      : currentLetAgent.grade === 'B' ?
+                        <li>{formatter.format(property.base_rate_level2 * 1.2)}</li>
+                        : currentLetAgent.grade === 'C' &&
+                        <li>{formatter.format(property.base_rate_level2 * 1.1)}</li>
+                  }
                 </ul>
+                :
                 <ul>
                   <li>You do not currenlty have a letting agent organised for this property</li>
                   <li>£0</li>
                   <li>VOID</li>
                   <li>£0</li>
                 </ul>
-              </div>
-            }
+              }
+            </div>
+
             <div>
               <h6>CURRENT MONTH BREAKDOWN</h6>
               <ul>
@@ -700,7 +752,24 @@ const PropertyPage = () => {
                 {workplaceToDisplay === 'manageLetting' ?
                   <div>
                     <h4>MANAGE LETTING</h4>
-
+                    {currentLetAgent.grade === 'none' ?
+                      <p>Current Agent: None</p>
+                      : currentLetAgent.grade === 'A' ?
+                        <p>Current Agent: Premium Gold Lets</p>
+                        : currentLetAgent.grade === 'B' ?
+                          <p>Current Agent: Middle Lettings</p>
+                          : currentLetAgent.grade === 'C' &&
+                          <p>Current Agent: Lettings 'R' us</p>
+                    }
+                    <select defaultValue={'default'} onChange={handleLetSelect}>
+                      <option value='default' disabled>-Select-</option>
+                      <option value='C' disabled={currentLetAgent.grade === 'C'}>Lettings 'R' Us (10% rent fee)</option>
+                      <option value='B' disabled={currentLetAgent.grade === 'B'}>Middle Lettings (15% rent fee)</option>
+                      <option value='A' disabled={currentLetAgent.grade === 'A'}>Premium Gold Lets (20% rent fee)</option>
+                    </select>
+                    <button onClick={handleLettingChange}>CHANGE LETTING</button>
+                    <p>{popUpMessage}</p>
+                    <p>Changing your letting agent will initiate a new void period</p>
                   </div>
                   :
                   workplaceToDisplay === 'improvements' ?
