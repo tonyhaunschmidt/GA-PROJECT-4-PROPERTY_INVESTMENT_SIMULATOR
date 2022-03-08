@@ -117,7 +117,7 @@ const PropertyPage = () => {
         const transactions = await axios.get(`/api/transactions/propertyspecific/${id}`)
         setCurrentTermPropertyTransactions(transactions.data.filter(transaction => transaction.property_ownership_term === property.ownership_term))
         const lettings = await axios.get(`/api/lettings/propertyspecific/${id}`)
-        lettings.data.length && setCurrentLetAgent(lettings.data.find(letting => letting.current === true))
+        lettings.data.some(letting => letting.current === true) && setCurrentLetAgent(lettings.data.find(letting => letting.current === true))
       } catch (err) {
         console.log(err)
       }
@@ -500,12 +500,42 @@ const PropertyPage = () => {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
+      window.location.reload(false);
     } else {
       setPopUpMessage('You must select a letting agent')
     }
-    window.location.reload(false);
   }
 
+  const handlePayOffMortgage = async () => {
+    if (currentUser.capital < ownersActiveMortgage.loan_value) {
+      setPopUpMessage('You have insufficient funds to make this transaction')
+    } else {
+      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - ownersActiveMortgage.loan_value }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      await axios.post('/api/transactions', {
+        type: 'paid_mortgage',
+        property: property.id,
+        owner: currentUser.id,
+        amount: ownersActiveMortgage.loan_value,
+        stamp_duty: 0,
+        fees: 0,
+        property_ownership_term: property.ownership_term
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      window.location.reload(false);
+    }
+  }
 
 
 
@@ -626,7 +656,7 @@ const PropertyPage = () => {
                 <ul>
                   <li>Interest Only (Fixed Rate)</li>
                   <li>{ownersActiveMortgage.LTV}%</li>
-                  <li>{ownersActiveMortgage.loan_value}</li>
+                  <li>{formatter.format(ownersActiveMortgage.loan_value)}</li>
                   <li>25 Years</li>
                   <li>Remaining Term</li> {/*FORMAT AFTER VIRTUAL CALENDAR*/}
                   <li>{ownersActiveMortgage.interest}%</li>
@@ -644,6 +674,7 @@ const PropertyPage = () => {
                 <li>Status</li>
                 <li>Monthly Income</li>
               </ul>
+              {console.log(currentLetAgent)}
               {currentLetAgent.id ?
                 <ul>
                   {currentLetAgent.grade === 'A' ?
@@ -653,22 +684,24 @@ const PropertyPage = () => {
                       : currentLetAgent.grade === 'C' &&
                       <li>Lettings 'R' us</li>
                   }
-                  {currentLetAgent.grade === 'A' ?
-                    <li>{formatter.format(property.base_rate_level2 * 1.3 * 0.2)}</li>
-                    : currentLetAgent.grade === 'B' ?
-                      <li>{formatter.format(property.base_rate_level2 * 1.2 * 0.15)}</li>
-                      : currentLetAgent.grade === 'C' &&
-                      <li>{formatter.format(property.base_rate_level2 * 1.1 * 0.1)}</li>
+                  {currentLetAgent.void ?
+                    <li>£0</li>
+                    : currentLetAgent.grade === 'A' ?
+                      <li>{formatter.format(Math.ceil(level.baseRate * 0.2))}</li>
+                      : currentLetAgent.grade === 'B' ?
+                        <li>{formatter.format(Math.ceil(level.baseRate * 0.15))}</li>
+                        : currentLetAgent.grade === 'C' &&
+                        <li>{formatter.format(Math.ceil(level.baseRate * 0.1))}</li>
                   }
                   <li>{currentLetAgent.void ? 'VOID' : 'LET'}</li>
                   {currentLetAgent.void ?
                     <li>£0</li>
                     : currentLetAgent.grade === 'A' ?
-                      <li>{formatter.format(property.base_rate_level2 * 1.3)}</li>
+                      <li>{formatter.format(level.baseRate)}</li>
                       : currentLetAgent.grade === 'B' ?
-                        <li>{formatter.format(property.base_rate_level2 * 1.2)}</li>
+                        <li>{formatter.format(level.baseRate)}</li>
                         : currentLetAgent.grade === 'C' &&
-                        <li>{formatter.format(property.base_rate_level2 * 1.1)}</li>
+                        <li>{formatter.format(level.baseRate)}</li>
                   }
                 </ul>
                 :
@@ -686,16 +719,56 @@ const PropertyPage = () => {
               <ul>
                 <li>Mortgage Payment</li>
                 <li>Rent Income</li>
-                <li>Void Bills</li> {/* ADD CONDITION FOR THIS NOT TO SHOW IF NOT VOID */}
+                {currentLetAgent.void ? <li>Void Bills</li> : <></>}
                 <li>Letting Fee</li>
                 <li>TOTAL INCOME</li>
               </ul>
               <ul>
                 <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
-                <li>£0</li>{/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}
-                <li>{formatter.format(0 - property.void_upkeep)}</li>
-                <li>£0</li> {/*ADD AFTER IMPLEMENTING LETTING FUNCTIONALITY*/}
-                <li>-£438</li>
+                {currentLetAgent.void ?
+                  <li>£0</li>
+                  : currentLetAgent.grade === 'A' ?
+                    <li>{formatter.format(level.baseRate)}</li>
+                    : currentLetAgent.grade === 'B' ?
+                      <li>{formatter.format(level.baseRate)}</li>
+                      : currentLetAgent.grade === 'C' &&
+                      <li>{formatter.format(level.baseRate)}</li>
+                }
+                {currentLetAgent.void ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
+                {currentLetAgent.void ?
+                  <li>£0</li>
+                  : currentLetAgent.grade === 'A' ?
+                    <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.2))}</li>
+                    : currentLetAgent.grade === 'B' ?
+                      <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.15))}</li>
+                      : currentLetAgent.grade === 'C' &&
+                      <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.1))}</li>
+                }
+                {currentLetAgent.void ?
+                  <li>{ownersActiveMortgage ?
+                    formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)) - property.void_upkeep)
+                    :
+                    formatter.format(0 - property.void_upkeep)
+                  }</li>
+                  : currentLetAgent.grade === 'A' ?
+                    <li>{ownersActiveMortgage ?
+                      formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                      :
+                      formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate)
+                    }</li>
+                    : currentLetAgent.grade === 'B' ?
+                      <li>{ownersActiveMortgage ?
+                        formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                        :
+                        formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate)
+                      }</li>
+                      : currentLetAgent.grade === 'C' &&
+                      <li>{ownersActiveMortgage ?
+                        formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                        :
+                        formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate)
+                      }</li>
+                }
               </ul>
             </div>
           </div>
@@ -745,7 +818,11 @@ const PropertyPage = () => {
                 <button value={'improvements'} onClick={displayWorkplace}>IMPROVEMENTS</button>
                 <button value={'getValuation'} onClick={displayWorkplace}>GET VALUATION (£500)</button> {/*ADD CONDITIONS FOR IF A VALUATION HAS ALREADY BEEN MADE IN THE LAST MONTH*/}
                 <button value={'remortgage'} onClick={displayWorkplace}>REMORTGAGE</button> {/*ADD CONDITION FOR IF A VALUATION HAS BEEN MADE IN THE LAST MONTH*/}
-                <button value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button> {/*ADD CONDITION IF MORTGAGE EXISTS*/}
+                {ownersActiveMortgage ?
+                  <button value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button>
+                  :
+                  <button>PAY OFF MORTGAGE</button>
+                }
                 <button value={'putOnMarket'} onClick={displayWorkplace}>PUT ON MARKET</button>
               </div>
               <div>
@@ -792,7 +869,11 @@ const PropertyPage = () => {
                         :
                         workplaceToDisplay === 'payMortgage' ?
                           <div>
-                            <h4>PAY MORTGAGE</h4>
+                            <h4>PAY OFF MORTGAGE</h4>
+                            <p>Pay off full mortgage loan value?</p>
+                            <h5>{formatter.format(ownersActiveMortgage.loan_value)}</h5>
+                            <button onClick={handlePayOffMortgage}>PAY OFF MORTGAGE</button>
+                            <p>{popUpMessage}</p>
 
                           </div>
                           :
