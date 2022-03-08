@@ -343,11 +343,26 @@ const PropertyPage = () => {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
+
+
+
+    console.log({
+      type: 'sold_property',
+      property: property.id,
+      owner: property.owner,
+      amount: usersActiveOffer.offer_value,
+      stamp_duty: 0,
+      fees: 0,
+      property_ownership_term: property.ownership_term
+    })
+    console.log(usersActiveOffer)
+
+
     await axios.post('/api/transactions', {
       type: 'sold_property',
       property: property.id,
       owner: property.owner,
-      amount: usersActiveOffer.offer_amount,
+      amount: usersActiveOffer.offer_value,
       stamp_duty: 0,
       fees: 0,
       property_ownership_term: property.ownership_term
@@ -738,7 +753,10 @@ const PropertyPage = () => {
                 <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
                 <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
               </ul>
-              {offerToAccept.offer_value - ownersActiveMortgage.loan_value < 0 &&
+              {!ownersActiveMortgage ?
+                <></>
+                :
+                offerToAccept.offer_value - ownersActiveMortgage.loan_value < 0 &&
                 <p>Accepting offer at negative equity. Please ensure you have sufficeint funds before accepting this offer.</p>
               }
               <p>The purchase will be finalised when the buyer confirms purchase</p>
