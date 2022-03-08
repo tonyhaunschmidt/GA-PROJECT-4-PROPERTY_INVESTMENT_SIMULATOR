@@ -39,6 +39,8 @@ const PropertyPage = () => {
   const [currentTermPropertyTransactions, setCurrentTermPropertyTransactions] = useState([])
   const [workplaceToDisplay, setWorkplaceToDisplay] = useState('none')
   const [askingPrice, setAskingPrice] = useState('')
+  const [offerToAccept, setOfferToAccept] = useState({})
+  const [offerToReject, setOfferToReject] = useState({})
 
 
   useEffect(() => {
@@ -415,22 +417,54 @@ const PropertyPage = () => {
     window.location.reload(false);
   }
 
-  const rejectOffer = async (e) => {
-    console.log(e.target.value)
-    console.log(activePropertyOffers)
-    const offerToReject = activePropertyOffers.find(offer => offer.id == e.target.value)
-    console.log({ ...offerToReject, retracted: true })
-    await axios.put(`/api/offers/${e.target.value}`, { ...offerToReject, retracted: true, mortgage: offerToReject.mortgage.id }, {
+  const rejectOfferCheck = (e) => {
+    setOfferToReject(activePropertyOffers.find(offer => offer.id == e.target.value))
+    setPopUpToShow('rejectOffer')
+  }
+  const rejectOffer = async () => {
+    await axios.put(`/api/offers/${offerToReject.id}`, { ...offerToReject, retracted: true, mortgage: offerToReject.mortgage.id }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
-    setActivePropertyOffers(activePropertyOffers.filter(offer => offer.id != e.target.value))
+    setActivePropertyOffers(activePropertyOffers.filter(offer => offer.id != offerToReject.id))
+    setPopUpToShow('none')
   }
 
-  const acceptOffer = async (e) => {
-    //checks- can mortgage be paid off? 
-    //what happens to other offers? just change to offer accetped and you can accept as many offers as you'd like
+
+  const acceptOfferCheck = (e) => {
+    setOfferToAccept(activePropertyOffers.find(offer => offer.id == e.target.value))
+    setPopUpToShow('acceptOffer')
+  }
+
+  const acceptOffer = async () => {
+    const offersOnDisplay = [...activePropertyOffers]
+    const indexOfOfferToAccept = offersOnDisplay.indexOf(offerToAccept)
+    offersOnDisplay[indexOfOfferToAccept] = { ...offerToAccept, accepted: true }
+    setActivePropertyOffers(offersOnDisplay)
+    await axios.put(`/api/offers/${offerToAccept.id}`, { ...offerToAccept, accepted: true, mortgage: offerToAccept.mortgage.id }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    setPopUpToShow('none')
+  }
+
+  const dontAcceptOfferCheck = (e) => {
+    setOfferToAccept(activePropertyOffers.find(offer => offer.id == e.target.value))
+    setPopUpToShow('dontAcceptOffer')
+  }
+  const dontAcceptOffer = async () => {
+    const offersOnDisplay = [...activePropertyOffers]
+    const indexOfOfferToAccept = offersOnDisplay.indexOf(offerToAccept)
+    offersOnDisplay[indexOfOfferToAccept] = { ...offerToAccept, accepted: false }
+    setActivePropertyOffers(offersOnDisplay)
+    await axios.put(`/api/offers/${offerToAccept.id}`, { ...offerToAccept, accepted: false, mortgage: offerToAccept.mortgage.id }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    setPopUpToShow('none')
   }
 
 
@@ -449,7 +483,6 @@ const PropertyPage = () => {
           <h2>{property.house_number_or_name} {property.address}</h2>
           <h4>TRANSACTION HISTORY</h4>
           <div>
-            {console.log(currentTermPropertyTransactions)}
             {currentTermPropertyTransactions.map((transaction, index) =>
               transaction.type === 'mortgage' ?
                 <div key={index}>
@@ -625,14 +658,18 @@ const PropertyPage = () => {
                 activePropertyOffers.map(offer =>
                   <div key={offer.id}>
                     <p>{formatter.format(offer.offer_value)}</p>
-                    <button onClick={acceptOffer} value={offer.id}>ACCEPT OFFER</button>{/* ADD AN 'ARE YOU SURE?'*/}
-                    <button onClick={rejectOffer} value={offer.id}>REJECT OFFER</button>{/* ADD AN 'ARE YOU SURE?'*/}
+                    {offer.accepted === true ?
+                      <button onClick={dontAcceptOfferCheck} value={offer.id}>DON'T ACCEPT OFFER</button>
+                      :
+                      <button onClick={acceptOfferCheck} value={offer.id}>ACCEPT OFFER</button>
+                    }
+                    <button onClick={rejectOfferCheck} value={offer.id}>REJECT OFFER</button>
                   </div>
                 )
                 :
                 <p>You currently do not have any offers for this property</p>
               }
-              <button onClick={takeOffMarket}>TAKE OFF MARKET</button> {/* ADD AN 'ARE YOU SURE?' THIS WILL RETRACT ALL OFFERS*/}
+              <button value={'takeOffMarket'} onClick={displayPopUp}>TAKE OFF MARKET</button>
             </div>
             :
             <div>
@@ -688,11 +725,73 @@ const PropertyPage = () => {
               </div>
             </div>
           }
-
-
-
-
-
+          {popUpToShow === 'acceptOffer' ?
+            <div className='pop_up'>
+              <h4>ACCEPT OFFER</h4>
+              <ul>
+                <li>Offer Value</li>
+                <li>Mortgage To Pay Off</li>
+                <li>Net Income</li>
+              </ul>
+              <ul>
+                <li>{formatter.format(offerToAccept.offer_value)}</li>
+                <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
+                <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
+              </ul>
+              {offerToAccept.offer_value - ownersActiveMortgage.loan_value < 0 &&
+                <p>Accepting offer at negative equity. Please ensure you have sufficeint funds before accepting this offer.</p>
+              }
+              <p>The purchase will be finalised when the buyer confirms purchase</p>
+              <button onClick={acceptOffer}>ACCEPT OFFER</button>
+              <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+            </div>
+            :
+            popUpToShow === 'dontAcceptOffer' ?
+              <div className='pop_up'>
+                <h4>DON'T ACCEPT OFFER</h4>
+                <ul>
+                  <li>Offer Value</li>
+                  <li>Mortgage To Pay Off</li>
+                  <li>Net Income</li>
+                </ul>
+                <ul>
+                  <li>{formatter.format(offerToAccept.offer_value)}</li>
+                  <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
+                  <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
+                </ul>
+                <p>Are you sure you want to retract your acceptance of this offer?</p>
+                <button onClick={dontAcceptOffer}>DON'T ACCEPT OFFER</button>
+                <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+              </div>
+              :
+              popUpToShow === 'rejectOffer' ?
+                <div className='pop_up'>
+                  <h4>REJECT OFFER</h4>
+                  <ul>
+                    <li>Offer Value</li>
+                    <li>Mortgage To Pay Off</li>
+                    <li>Net Income</li>
+                  </ul>
+                  <ul>
+                    <li>{formatter.format(offerToAccept.offer_value)}</li>
+                    <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
+                    <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
+                  </ul>
+                  <p>Are you sure you want to reject this offer?</p>
+                  <button onClick={rejectOffer}>REJECT OFFER</button>
+                  <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                </div>
+                :
+                popUpToShow === 'takeOffMarket' ?
+                  <div className='pop_up'>
+                    <h4>TAKE OFF MARKET</h4>
+                    <p>Are you sure?</p>
+                    <p>Taking a property off the market will result in all current offers being retracted.</p>
+                    <button onClick={takeOffMarket}>TAKE OFF MARKET</button>
+                    <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                  </div>
+                  :
+                  <></>}
 
         </section>
 
