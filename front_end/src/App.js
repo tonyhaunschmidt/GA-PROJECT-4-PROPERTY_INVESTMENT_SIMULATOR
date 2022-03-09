@@ -20,7 +20,7 @@ function App() {
         <Route path='register' element={<RegisterPage />} />
         <Route path='myportfolio' element={<MyPortfolioPage />} />
         <Route path='marketplace' element={<MarketplacePage />} />
-        <Route path='properties/:id' element={<PropertyPage />} />
+        <Route path='property/:id' element={<PropertyPage />} />
       </Routes>
     </BrowserRouter>
   );

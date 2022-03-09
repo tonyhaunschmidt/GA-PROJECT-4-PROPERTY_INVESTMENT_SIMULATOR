@@ -142,6 +142,8 @@ const PropertyPage = () => {
           totalInvested += currentTermPropertyTransactions[i].amount
         } else if (currentTermPropertyTransactions[i].type === 'property_purchase') {
           totalInvested += currentTermPropertyTransactions[i].amount
+          totalInvested += currentTermPropertyTransactions[i].stamp_duty
+          totalInvested += currentTermPropertyTransactions[i].fees
           setLastValuation(currentTermPropertyTransactions[i].amount)
         } else if (currentTermPropertyTransactions[i].type === 'income') {
           totalReturned += currentTermPropertyTransactions[i].amount
@@ -262,6 +264,12 @@ const PropertyPage = () => {
       setPopUpMessage([
         'We regret to inform you that your mortgage application has been rejected.',
         'After evaluating the potential rental income of this property, it is not viable as a sound investment.'
+      ])
+      setPopUpToShow('mortgageReject')
+    } else if (mortgageRequest.loan_value < 15000 && mortgageRequest.LTV === '75') {
+      setPopUpMessage([
+        'We regret to inform you that your mortgage application has been rejected.',
+        'The requested loan value is below our minimum loan allowance'
       ])
       setPopUpToShow('mortgageReject')
     } else {
@@ -628,10 +636,14 @@ const PropertyPage = () => {
                     <ul>
                       <li>Property Purchase</li>
                       <li>Purchase</li>
+                      <li>Stamp Duty</li>
+                      <li>Fees</li>
                     </ul>
                     <ul>
                       <li>{transaction.time_stamp}</li>
                       <li>{formatter.format(0 - transaction.amount)}</li>
+                      <li>{formatter.format(0 - transaction.stamp_duty)}</li>
+                      <li>{formatter.format(0 - transaction.fees)}</li>
                     </ul>
                   </div>
                   :
@@ -753,12 +765,8 @@ const PropertyPage = () => {
                   <li>{currentLetAgent.void ? 'VOID' : 'LET'}</li>
                   {currentLetAgent.void ?
                     <li>£0</li>
-                    : currentLetAgent.grade === 'A' ?
-                      <li>{formatter.format(level.baseRate)}</li>
-                      : currentLetAgent.grade === 'B' ?
-                        <li>{formatter.format(level.baseRate)}</li>
-                        : currentLetAgent.grade === 'C' &&
-                        <li>{formatter.format(level.baseRate)}</li>
+                    :
+                    <li>{formatter.format(level.baseRate)}</li>
                   }
                 </ul>
                 :

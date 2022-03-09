@@ -39,3 +39,12 @@ class propertyTransactionListView(APIView):
         offers = Transaction.objects.filter(property=pk)
         serialized_offers = TransactionSerializer(offers, many=True)
         return Response(serialized_offers.data, status=status.HTTP_200_OK)
+
+
+class UserTransactionListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        offers = Transaction.objects.filter(owner=pk)
+        serialized_offers = TransactionSerializer(offers, many=True)
+        return Response(serialized_offers.data, status=status.HTTP_200_OK)

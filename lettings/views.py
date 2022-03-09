@@ -61,3 +61,12 @@ class propertyLettingsListView(APIView):
         lettings = Letting.objects.filter(property=pk)
         serialized_lettings = LettingSerializer(lettings, many=True)
         return Response(serialized_lettings.data, status=status.HTTP_200_OK)
+
+
+class UserLettingsListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        lettings = Letting.objects.filter(owner=pk)
+        serialized_lettings = LettingSerializer(lettings, many=True)
+        return Response(serialized_lettings.data, status=status.HTTP_200_OK)

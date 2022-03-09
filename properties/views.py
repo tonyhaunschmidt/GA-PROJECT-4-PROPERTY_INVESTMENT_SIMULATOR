@@ -54,3 +54,12 @@ class MarketplaceListView(APIView):
         properties = Property.objects.filter(for_sale=True)
         serialized_properties = PropertySerializer(properties, many=True)
         return Response(serialized_properties.data, status=status.HTTP_200_OK)
+
+
+class UserPropertyListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        properties = Property.objects.filter(owner=pk)
+        serialized_properties = PropertySerializer(properties, many=True)
+        return Response(serialized_properties.data, status=status.HTTP_200_OK)

@@ -38,7 +38,7 @@ const MarketplacePage = () => {
             property.images_level3
         const imagesArray = images.split('&')
         return (
-          <Link key={property.id} to={`/properties/${property.id}`}>
+          <Link key={property.id} to={`/property/${property.id}`}>
             <div>
               {imagesArray.map(imageURL =>
                 <img key={imageURL} src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />

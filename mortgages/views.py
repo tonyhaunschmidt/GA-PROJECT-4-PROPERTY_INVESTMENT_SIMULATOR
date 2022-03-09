@@ -62,3 +62,12 @@ class propertyMortgagesListView(APIView):
         mortgages = Mortgage.objects.filter(property=pk)
         serialized_mortgages = MortgageSerializer(mortgages, many=True)
         return Response(serialized_mortgages.data, status=status.HTTP_200_OK)
+
+
+class UserMortgagesListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        mortgages = Mortgage.objects.filter(owner=pk)
+        serialized_mortgages = MortgageSerializer(mortgages, many=True)
+        return Response(serialized_mortgages.data, status=status.HTTP_200_OK)
