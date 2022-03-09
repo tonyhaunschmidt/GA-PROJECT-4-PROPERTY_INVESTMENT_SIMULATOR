@@ -48,6 +48,7 @@ const PropertyPage = () => {
   const [offerToReject, setOfferToReject] = useState({})
   const [currentLetAgent, setCurrentLetAgent] = useState({ grade: 'none' })
   const [selectedLetAgent, setSelectedLetAgent] = useState({})
+  const [newValuation, setnewValuation] = useState(0)
 
 
   useEffect(() => {
@@ -569,6 +570,30 @@ const PropertyPage = () => {
     }
   }
 
+  const getValuation = async () => {
+    const valuation = lastValuation + (((Math.floor(Math.random() * 20)) - 10) * 1000)
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - 500 }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    await axios.post('/api/transactions', {
+      type: 'valuation',
+      property: property.id,
+      owner: currentUser.id,
+      amount: valuation,
+      stamp_duty: 0,
+      fees: 0,
+      property_ownership_term: property.ownership_term
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+    setnewValuation(valuation)
+    setPopUpToShow('valuation')
+  }
+
 
 
 
@@ -888,10 +913,18 @@ const PropertyPage = () => {
                     </div>
                     :
                     workplaceToDisplay === 'getValuation' ?
-                      <div>
-                        <h4>VALUATION</h4>
-
-                      </div>
+                      1 + 1 === 5 ?
+                        <div> {/*add condition to show 'your last valuation was ***. you can only revaluate your house once a month*/}
+                          <h4>VALUATION</h4>
+                          <p>Your last valuation was {formatter.format(lastValuation)}</p>
+                          <p>You can only valuate your property once per month</p>
+                        </div>
+                        :
+                        <div>
+                          <h4>VALUATION</h4>
+                          <p>Cost to valuate your property- £500</p>
+                          <button onClick={getValuation}>GET VALUATION</button>
+                        </div>
                       :
                       workplaceToDisplay === 'remortgage' ?
                         <div>
@@ -991,7 +1024,14 @@ const PropertyPage = () => {
                     <button value={'none'} onClick={displayPopUp}>CANCEL</button>
                   </div>
                   :
-                  <></>}
+                  popUpToShow === 'valuation' ?
+                    <div className='pop_up'>
+                      <h4>YOUR NEW VALUATION</h4>
+                      <h3>{formatter.format(newValuation)}</h3>
+                      <button onClick={refeshPage}>OK</button>
+                    </div>
+                    :
+                    <></>}
 
         </section>
 
