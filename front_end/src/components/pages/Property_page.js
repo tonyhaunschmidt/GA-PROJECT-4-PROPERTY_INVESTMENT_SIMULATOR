@@ -49,6 +49,7 @@ const PropertyPage = () => {
   const [currentLetAgent, setCurrentLetAgent] = useState({ grade: 'none' })
   const [selectedLetAgent, setSelectedLetAgent] = useState({})
   const [newValuation, setnewValuation] = useState(0)
+  const [savedProperty, setSavedProperty] = useState(false)
 
 
   useEffect(() => {
@@ -115,6 +116,7 @@ const PropertyPage = () => {
             activeOffers.push(offers.data[i])
           }
         }
+        setSavedProperty(data.saved_properties.some(property => property == id))
         setActivePropertyOffers(activeOffers)
         setUsersActiveOffer(activeOffers.find(offer => offer.owner === data.id))
         const mortgages = await axios.get(`/api/mortgages/propertyspecific/${id}`)
@@ -579,27 +581,52 @@ const PropertyPage = () => {
   }
 
   const getValuation = async () => {
-    const valuation = lastValuation + (((Math.floor(Math.random() * 20)) - 10) * 1000)
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - 500 }, {
+    if (currentUser.capital < 500) {
+      setPopUpMessage('You must have sufficient funds to make this request')
+    } else {
+      const valuation = lastValuation + (((Math.floor(Math.random() * 20)) - 10) * 1000)
+      await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - 500 }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      await axios.post('/api/transactions', {
+        type: 'valuation',
+        property: property.id,
+        owner: currentUser.id,
+        amount: valuation,
+        stamp_duty: 0,
+        fees: 0,
+        property_ownership_term: property.ownership_term
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      setnewValuation(valuation)
+      setPopUpToShow('valuation')
+    }
+  }
+
+  const handleSave = async () => {
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: currentUser.saved_properties.push(id) }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
-    await axios.post('/api/transactions', {
-      type: 'valuation',
-      property: property.id,
-      owner: currentUser.id,
-      amount: valuation,
-      stamp_duty: 0,
-      fees: 0,
-      property_ownership_term: property.ownership_term
-    }, {
+    setSavedProperty(true)
+  }
+
+  const handleUnsave = async () => {
+    const saved = [...currentUser.saved_properties]
+    saved.splice(saved.indexOf(id), 1)
+    console.log(saved)
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properites: saved }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
-    setnewValuation(valuation)
-    setPopUpToShow('valuation')
+    setSavedProperty(false)
   }
 
 
@@ -932,6 +959,7 @@ const PropertyPage = () => {
                           <h4>VALUATION</h4>
                           <p>Cost to valuate your property- £500</p>
                           <button onClick={getValuation}>GET VALUATION</button>
+                          <p>{popUpMessage}</p>
                         </div>
                       :
                       workplaceToDisplay === 'remortgage' ?
@@ -1055,7 +1083,12 @@ const PropertyPage = () => {
             <h3>{level.shortDescription}</h3>
             <h4>{property.address}</h4>
             <h1>{formatter.format(property.asking_price)}</h1>
-            <button>FAVOURITE</button>
+            {savedProperty ?
+              <button onClick={handleUnsave}>UNSAVE</button>
+              :
+              <button onClick={handleSave}>SAVE</button>
+            }
+
             {level.longDescriptionParagraphs.map((paragraph, index) =>
               <p key={index}>{paragraph}</p>
             )}

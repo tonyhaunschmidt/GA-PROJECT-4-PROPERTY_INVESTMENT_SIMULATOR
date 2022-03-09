@@ -42,6 +42,7 @@ const MyPortfolioPage = () => {
         setUsersTransactions(transactionsdata.data)
         const offerssdata = await axios.get(`/api/offers/userspecific/${currentUserID}`)
         setUsersActiveOffers(offerssdata.data.filter(offer => offer.retracted === false))
+        console.log(offerssdata.data.filter(offer => offer.retracted === false))
       } catch (err) {
         console.log(err)
       }
@@ -134,8 +135,8 @@ const MyPortfolioPage = () => {
         setMarketplaceProperties(data)
         const propertiesToDisplay = []
         for (let i = 0; i < usersActiveOffers.length; i++) {
-          if (data.some(property => property.id === usersActiveOffers[i].id)) {
-            const offeredproperty = data.find(property => property.id === usersActiveOffers[i].id)
+          if (data.some(property => property.id === usersActiveOffers[i].property)) {
+            const offeredproperty = data.find(property => property.id === usersActiveOffers[i].property)
             propertiesToDisplay.push({ ...offeredproperty, offer: usersActiveOffers[i].offer_value })
           }
         }
@@ -223,7 +224,7 @@ const MyPortfolioPage = () => {
           </tfoot>
         </table>
       </div>
-      <h4>Offers Submitted</h4>
+      <h4>Offers Submitted/Saved Properties For Sale</h4>
       <div>
         {marketPropertiesToDisplay?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT??
           const description = property.level === 1 ? property.short_description_level1 :
