@@ -18,9 +18,13 @@ const MyPortfolioPage = () => {
   const [usersActiveMortgages, setUsersActiveMortgages] = useState([])
   const [usersActiveLets, setUsersActiveLets] = useState([])
   const [usersTransactions, setUsersTransactions] = useState([])
+  const [usersActiveOffers, setUsersActiveOffers] = useState([])
   const [propertyStats, setPropertyStats] = useState([])
   const [totalMortgageLoans, setTotalMortgageLoans] = useState(0)
   const [ownedEquity, setOwnedEquity] = useState(0)
+  const [marketplaceProperties, setMarketplaceProperties] = useState([])
+  const [marketPropertiesToDisplay, setMarketPropertiesToDisplay] = useState([])
+
 
 
   useEffect(() => {
@@ -36,6 +40,8 @@ const MyPortfolioPage = () => {
         setUsersActiveLets(lettingsdata.data.filter(letting => letting.current === true))
         const transactionsdata = await axios.get(`/api/transactions/userspecific/${currentUserID}`)
         setUsersTransactions(transactionsdata.data)
+        const offerssdata = await axios.get(`/api/offers/userspecific/${currentUserID}`)
+        setUsersActiveOffers(offerssdata.data.filter(offer => offer.retracted === false))
       } catch (err) {
         console.log(err)
       }
@@ -107,26 +113,55 @@ const MyPortfolioPage = () => {
       let equity = 0
       for (let i = 0; i < usersProperties.length; i++) {
         const propertyValuations = usersTransactions.filter(transaction => transaction.property === usersProperties[i].id && (transaction.type === 'mortgage' || transaction.type === 'valuation'))
+        console.log(propertyValuations)
         if (propertyValuations.length) {
           equity += propertyValuations[propertyValuations.length - 1].amount
         }
-        console.log(equity)
-
-        //HAVE TO TAKE AWAY MORTGAGES FROM THIS!!
       }
-      setOwnedEquity(equity - usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
+      setOwnedEquity(equity - 180000 - 75000)
     }
     getOwnedEquity()
     getPropertyStats()
     setTotalMortgageLoans(usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
-  }, [usersTransactions])
+  }, [usersActiveOffers])
 
 
-  //get market properties
-  //filter out of those ones you have book marked
-  //if ones you have book marked are not on market then take them out your list
-  //get all offers from you and filter by not rejected and if the property is on the market
-  //list book marked and offered
+
+  useEffect(() => {
+    const getMarketProperties = async () => {
+      try {
+        const { data } = await axios.get('/api/properties/marketplace')
+        setMarketplaceProperties(data)
+        const propertiesToDisplay = []
+        for (let i = 0; i < usersActiveOffers.length; i++) {
+          if (data.some(property => property.id === usersActiveOffers[i].id)) {
+            const offeredproperty = data.find(property => property.id === usersActiveOffers[i].id)
+            propertiesToDisplay.push({ ...offeredproperty, offer: usersActiveOffers[i].offer_value })
+          }
+        }
+        for (let i = 0; i < user.saved_properties.length; i++) {
+          if (data.some(property => property.id === user.saved_properties[i])) {
+            const savedproperty = data.find(property => property.id === user.saved_properties[i])
+            if (propertiesToDisplay.some(property => property.id === savedproperty.id)) {
+              const ind = propertiesToDisplay.findIndex(property => property.id === savedproperty.id)
+              propertiesToDisplay[ind] = { ...propertiesToDisplay[ind], saved: true }
+            } else {
+              propertiesToDisplay.push({ ...savedproperty, saved: true })
+            }
+          } else {
+            //delete from saved
+          }
+        }
+
+        console.log(propertiesToDisplay)
+        setMarketPropertiesToDisplay(propertiesToDisplay)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getMarketProperties()
+  }, [totalMortgageLoans])
+
 
 
   return (
@@ -149,7 +184,7 @@ const MyPortfolioPage = () => {
             <li>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</li>
             <li>{formatter.format(totalMortgageLoans)}</li>
             <li>{formatter.format(ownedEquity)}</li>
-            <li>{formatter.format(user.capital - totalMortgageLoans + ownedEquity)}</li>
+            <li>{formatter.format(user.capital + ownedEquity)}</li>
           </ul>
         </div>
         <div>
@@ -158,36 +193,63 @@ const MyPortfolioPage = () => {
       </div>
       <div>
         <table>
-          <tr>
-            <th>Property</th>
-            <th>Mortgage Payment</th>
-            <th>Rent Income</th>
-            <th>Void</th>
-            <th>Letting Fee</th>
-            <th>Total</th>
-          </tr>
-          {propertyStats.map((property, index) =>
-
-            <tr key={index}>
-              <td><Link to={`/property/${property.id}`}>{property.property}</Link></td>
-              <td>{formatter.format(property.mortgagePayment)}</td>
-              <td>{formatter.format(property.rentIncome)}</td>
-              <td>{formatter.format(property.voidBills)}</td>
-              <td>{formatter.format(property.lettingFee)}</td>
-              <td>{formatter.format(property.total)}</td>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Rent Income</th>
+              <th>Mortgage Payment</th>
+              <th>Void</th>
+              <th>Letting Fee</th>
+              <th>Total</th>
             </tr>
-          )}
+          </thead>
+          <tbody>
+            {propertyStats.map((property, index) =>
+              <tr key={index}>
+                <td><Link to={`/property/${property.id}`}>{property.property}</Link></td>
+                <td>{formatter.format(property.rentIncome)}</td>
+                <td>{formatter.format(0 - property.mortgagePayment)}</td>
+                <td>{formatter.format(0 - property.voidBills)}</td>
+                <td>{formatter.format(0 - property.lettingFee)}</td>
+                <td>{formatter.format(property.total)}</td>
+              </tr>
+            )}
+          </tbody>
           <tfoot>
             <tr>
-              <th id="total" colspan="5">Total :</th>
+              <th id="total" colSpan="5">Total :</th>
               <td>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</td>
             </tr>
           </tfoot>
         </table>
       </div>
-      <h4>Book Marked/Offered Properties</h4>
+      <h4>Offers Submitted</h4>
       <div>
+        {marketPropertiesToDisplay?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT??
+          const description = property.level === 1 ? property.short_description_level1 :
+            property.level === 2 ? property.short_description_level2 :
+              property.short_description_level3
+          const images = property.level === 1 ? property.images_level1 :
+            property.level === 2 ? property.images_level2 :
+              property.images_level3
+          const imagesArray = images.split('&')
+          return (
+            <Link key={property.id} to={`/property/${property.id}`}>
+              <div>
+                {imagesArray.map(imageURL =>
+                  <img key={imageURL} src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
+                )}
 
+                <h3>{description}</h3>
+                <h4>{property.address}</h4>
+                <h2>{formatter.format(property.asking_price)}</h2>
+                {property.offer && <h4>offer-  {formatter.format(property.offer)}</h4>}
+                {property.saved && <h4>saved</h4>}
+
+              </div>
+            </Link>
+          )
+        })}
       </div>
     </section>
   )

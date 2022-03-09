@@ -60,3 +60,12 @@ class propertyOffersListView(APIView):
         offers = Offer.objects.filter(property=pk)
         serialized_offers = PopulatedOfferSerializer(offers, many=True)
         return Response(serialized_offers.data, status=status.HTTP_200_OK)
+
+
+class UserOffersListView(APIView):
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get(self, _request, pk):
+        offers = Offer.objects.filter(owner=pk)
+        serialized_offers = PopulatedOfferSerializer(offers, many=True)
+        return Response(serialized_offers.data, status=status.HTTP_200_OK)

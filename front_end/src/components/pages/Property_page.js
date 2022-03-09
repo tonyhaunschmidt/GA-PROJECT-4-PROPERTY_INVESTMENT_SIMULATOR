@@ -851,7 +851,7 @@ const PropertyPage = () => {
               <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : '£0'}</li>
               <li>{ownersActiveMortgage ? formatter.format(lastValuation - ownersActiveMortgage.loan_value) : formatter.format(lastValuation)}</li>
               <li>{formatter.format(transactionStats.totalReturned)}</li>
-              <li>{ownersActiveMortgage ? formatter.format(lastValuation - (ownersActiveMortgage.loan_value * 2) - transactionStats.totalInvested + transactionStats.totalReturned) : formatter.format(lastValuation - transactionStats.totalInvested + transactionStats.totalReturned)}</li>
+              <li>{ownersActiveMortgage ? formatter.format(lastValuation - ownersActiveMortgage.loan_value - transactionStats.totalInvested + transactionStats.totalReturned) : formatter.format(lastValuation - transactionStats.totalInvested + transactionStats.totalReturned)}</li>
             </ul>
           </div>
           <hr />
