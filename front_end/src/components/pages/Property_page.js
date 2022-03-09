@@ -37,6 +37,11 @@ const PropertyPage = () => {
   const [propertyMortgages, setPropertyMortgages] = useState([])
   const [ownersActiveMortgage, setOwnersActiveMortgage] = useState({})
   const [currentTermPropertyTransactions, setCurrentTermPropertyTransactions] = useState([])
+  const [transactionStats, setTransactionStats] = useState({
+    totalInvested: 0,
+    totalReturned: 0,
+  })
+  const [lastValuation, setLastValuation] = useState(0)
   const [workplaceToDisplay, setWorkplaceToDisplay] = useState('none')
   const [askingPrice, setAskingPrice] = useState('')
   const [offerToAccept, setOfferToAccept] = useState({})
@@ -124,6 +129,33 @@ const PropertyPage = () => {
     }
     getUser()
   }, [property])
+
+  useEffect(() => {
+    const getTransactionStats = () => {
+      let totalInvested = 0
+      let totalReturned = 0
+      for (let i = 0; i < currentTermPropertyTransactions.length; i++) {
+        if (currentTermPropertyTransactions[i].type === 'mortgage') {
+          totalInvested -= currentTermPropertyTransactions[i].amount
+        } else if (currentTermPropertyTransactions[i].type === 'paid_mortgage') {
+          totalInvested += currentTermPropertyTransactions[i].amount
+        } else if (currentTermPropertyTransactions[i].type === 'property_purchase') {
+          totalInvested += currentTermPropertyTransactions[i].amount
+          setLastValuation(currentTermPropertyTransactions[i].amount)
+        } else if (currentTermPropertyTransactions[i].type === 'income') {
+          totalReturned += currentTermPropertyTransactions[i].amount
+        } else if (currentTermPropertyTransactions[i].type === 'valuation') {
+          setLastValuation(currentTermPropertyTransactions[i].amount)
+        } else if (currentTermPropertyTransactions[i].type === 'improvement') {
+          totalInvested += currentTermPropertyTransactions[i].amount
+        } else {
+          totalInvested += currentTermPropertyTransactions[i].amount
+        }
+      }
+      setTransactionStats({ totalInvested: totalInvested, totalReturned: totalReturned })
+    }
+    getTransactionStats()
+  }, [currentTermPropertyTransactions])
 
   const displayPopUp = (e) => {
     setPopUpToShow(e.target.value)
@@ -782,11 +814,11 @@ const PropertyPage = () => {
               <li>Total Profit</li>
             </ul>
             <ul>
-              <li>Total Money Invested</li> {/*ADD STATE ABOVE TO CALULATE*/}
+              <li>{formatter.format(transactionStats.totalInvested)}</li>
               <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : '£0'}</li>
-              <li>Owned Equity</li> {/*ADD AFTER IMPLEMENTING REMORTGAGING FUNCTIONALITY*/}
-              <li>Total Money Returned</li> {/*ADD STATE ABOVE TO CALULATE*/}
-              <li>Total Profit</li>  {/*ADD STATE ABOVE TO CALULATE*/}
+              <li>{ownersActiveMortgage ? formatter.format(lastValuation - ownersActiveMortgage.loan_value) : formatter.format(lastValuation)}</li>
+              <li>{formatter.format(transactionStats.totalReturned)}</li>
+              <li>{ownersActiveMortgage ? formatter.format(lastValuation - (ownersActiveMortgage.loan_value * 2) - transactionStats.totalInvested + transactionStats.totalReturned) : formatter.format(lastValuation - transactionStats.totalInvested + transactionStats.totalReturned)}</li>
             </ul>
           </div>
           <hr />
