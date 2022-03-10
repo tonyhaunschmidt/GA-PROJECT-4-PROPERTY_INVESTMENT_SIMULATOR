@@ -46,7 +46,7 @@ const PropertyPage = () => {
     totalReturned: 0,
   })
   const [lastValuation, setLastValuation] = useState(0)
-  const [workplaceToDisplay, setWorkplaceToDisplay] = useState('none')
+  const [workplaceToDisplay, setWorkplaceToDisplay] = useState('manageLetting')
   const [askingPrice, setAskingPrice] = useState('')
   const [offerToAccept, setOfferToAccept] = useState({})
   const [offerToReject, setOfferToReject] = useState({})
@@ -743,6 +743,7 @@ const PropertyPage = () => {
                               </ul>
                             </div>
               )}
+              <small>[END]</small>
             </div>
             <hr />
             <div>
@@ -825,14 +826,13 @@ const PropertyPage = () => {
                 <h6>Current Month Breakdown</h6>
                 <div className='ul_pairing'>
                   <ul>
-                    <li>Mortgage Payment</li>
                     <li>Rent Income</li>
+                    <li>Mortgage Payment</li>
                     {currentLetAgent.void ? <li>Void Bills</li> : <></>}
                     <li>Letting Fee</li>
                     <li>TOTAL INCOME</li>
                   </ul>
                   <ul>
-                    <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
                     {currentLetAgent.void ?
                       <li>£0</li>
                       : currentLetAgent.grade === 'A' ?
@@ -842,6 +842,7 @@ const PropertyPage = () => {
                           : currentLetAgent.grade === 'C' &&
                           <li>{formatter.format(level.baseRate)}</li>
                     }
+                    <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
                     {currentLetAgent.void ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
                     {currentLetAgent.void ?
                       <li>£0</li>
@@ -889,7 +890,7 @@ const PropertyPage = () => {
                 <li>Borrowed Money</li>
                 <li>Owned Equity</li>
                 <li>Total Money Returned</li>
-                <li>Total Profit</li>
+                <li>TOTAL PROFIT</li>
               </ul>
               <ul>
                 <li>{formatter.format(transactionStats.totalInvested)}</li>
@@ -902,28 +903,31 @@ const PropertyPage = () => {
             <hr />
             {property.for_sale ?
               <div>
-                <h4>OFFERS</h4>
+                <h4>FOR SALE</h4>
                 <p>Asking Price - {formatter.format(property.asking_price)}</p>
+                <h5>OFFERS</h5>
                 {activePropertyOffers.length ?
                   activePropertyOffers.map(offer =>
-                    <div key={offer.id}>
+                    <div className='offer_card' key={offer.id}>
                       <p>{formatter.format(offer.offer_value)}</p>
-                      {offer.accepted === true ?
-                        <button onClick={dontAcceptOfferCheck} value={offer.id}>DON'T ACCEPT OFFER</button>
-                        :
-                        <button onClick={acceptOfferCheck} value={offer.id}>ACCEPT OFFER</button>
-                      }
-                      <button onClick={rejectOfferCheck} value={offer.id}>REJECT OFFER</button>
+                      <div>
+                        {offer.accepted === true ?
+                          <button className='orange_button_style' onClick={dontAcceptOfferCheck} value={offer.id}>DON'T ACCEPT OFFER</button>
+                          :
+                          <button className='green_button_style' onClick={acceptOfferCheck} value={offer.id}>ACCEPT OFFER</button>
+                        }
+                        <button className='main_button_style' onClick={rejectOfferCheck} value={offer.id}>REJECT OFFER</button>
+                      </div>
                     </div>
                   )
                   :
                   <p>You currently do not have any offers for this property</p>
                 }
-                <button value={'takeOffMarket'} onClick={displayPopUp}>TAKE OFF MARKET</button>
+                <button className='main_button_style' value={'takeOffMarket'} onClick={displayPopUp}>TAKE OFF MARKET</button>
               </div>
               :
-              <div>
-                <div>
+              <div className='workplace'>
+                <div className='workplace_button_container'>
                   <button className='main_button_style' value={'manageLetting'} onClick={displayWorkplace}>MANAGE LETTING</button>
                   <button className='main_button_style' value={'improvements'} onClick={displayWorkplace}>IMPROVEMENTS</button>
                   <button className='main_button_style' value={'getValuation'} onClick={displayWorkplace}>GET VALUATION (£500)</button> {/*ADD CONDITIONS FOR IF A VALUATION HAS ALREADY BEEN MADE IN THE LAST MONTH*/}
@@ -931,14 +935,14 @@ const PropertyPage = () => {
                   {ownersActiveMortgage ?
                     <button className='main_button_style' value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button>
                     :
-                    <button>PAY OFF MORTGAGE</button>
+                    <button className='disabled_button_style'>PAY OFF MORTGAGE</button>
                   }
                   <button className='main_button_style' value={'putOnMarket'} onClick={displayWorkplace}>PUT ON MARKET</button>
                 </div>
-                <div>
+                <div className='workplace_box'>
                   {workplaceToDisplay === 'manageLetting' ?
                     <div>
-                      <h4>MANAGE LETTING</h4>
+                      <h5>-- MANAGE LETTING --</h5>
                       {currentLetAgent.grade === 'none' ?
                         <p>Current Agent: None</p>
                         : currentLetAgent.grade === 'A' ?
@@ -961,7 +965,7 @@ const PropertyPage = () => {
                     :
                     workplaceToDisplay === 'improvements' ?
                       <div>
-                        <h4>HOME IMPROVEMENTS</h4>
+                        <h5>-- HOME IMPROVEMENTS --</h5>
 
                       </div>
                       :
@@ -974,7 +978,7 @@ const PropertyPage = () => {
                           </div>
                           :
                           <div>
-                            <h4>VALUATION</h4>
+                            <h5>-- VALUATION --</h5>
                             <p>Cost to valuate your property- £500</p>
                             <button className='main_button_style' onClick={getValuation}>GET VALUATION</button>
                             <p>{popUpMessage}</p>
@@ -982,13 +986,13 @@ const PropertyPage = () => {
                         :
                         workplaceToDisplay === 'remortgage' ?
                           <div>
-                            <h4>REMORTGAGE</h4>
+                            <h5>-- REMORTGAGE --</h5>
 
                           </div>
                           :
                           workplaceToDisplay === 'payMortgage' ?
                             <div>
-                              <h4>PAY OFF MORTGAGE</h4>
+                              <h5>-- PAY OFF MORTGAGE --</h5>
                               <p>Pay off full mortgage loan value?</p>
                               <h5>{formatter.format(ownersActiveMortgage.loan_value)}</h5>
                               <button className='main_button_style' onClick={handlePayOffMortgage}>PAY OFF MORTGAGE</button>
@@ -998,7 +1002,7 @@ const PropertyPage = () => {
                             :
                             workplaceToDisplay === 'putOnMarket' ?
                               <div>
-                                <h4>PUT ON MARKET</h4>
+                                <h5>-- PUT ON MARKET --</h5>
                                 <label for='offer_value'>Asking Price (£)</label>
                                 <input type='number' min='1' step='1' name='offer_value' onChange={updateAskingPrice} />
                                 <button className='main_button_style' onClick={putOnMarket}>CONFIRM</ button>
@@ -1011,49 +1015,9 @@ const PropertyPage = () => {
             }
             {popUpToShow === 'acceptOffer' ?
               <div className='pop_up'>
-                <h4>ACCEPT OFFER</h4>
-                <ul>
-                  <li>Offer Value</li>
-                  <li>Mortgage To Pay Off</li>
-                  <li>Net Income</li>
-                </ul>
-                <ul>
-                  <li>{formatter.format(offerToAccept.offer_value)}</li>
-                  <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
-                  <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
-                </ul>
-                {!ownersActiveMortgage ?
-                  <></>
-                  :
-                  offerToAccept.offer_value - ownersActiveMortgage.loan_value < 0 &&
-                  <p>Accepting offer at negative equity. Please ensure you have sufficeint funds before accepting this offer.</p>
-                }
-                <p>The purchase will be finalised when the buyer confirms purchase</p>
-                <button onClick={acceptOffer}>ACCEPT OFFER</button>
-                <button value={'none'} onClick={displayPopUp}>CANCEL</button>
-              </div>
-              :
-              popUpToShow === 'dontAcceptOffer' ?
-                <div className='pop_up'>
-                  <h4>DON'T ACCEPT OFFER</h4>
-                  <ul>
-                    <li>Offer Value</li>
-                    <li>Mortgage To Pay Off</li>
-                    <li>Net Income</li>
-                  </ul>
-                  <ul>
-                    <li>{formatter.format(offerToAccept.offer_value)}</li>
-                    <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
-                    <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
-                  </ul>
-                  <p>Are you sure you want to retract your acceptance of this offer?</p>
-                  <button onClick={dontAcceptOffer}>DON'T ACCEPT OFFER</button>
-                  <button value={'none'} onClick={displayPopUp}>CANCEL</button>
-                </div>
-                :
-                popUpToShow === 'rejectOffer' ?
-                  <div className='pop_up'>
-                    <h4>REJECT OFFER</h4>
+                <div className='text_popup'>
+                  <h4>-- ACCEPT OFFER --</h4>
+                  <div className='ul_pairing'>
                     <ul>
                       <li>Offer Value</li>
                       <li>Mortgage To Pay Off</li>
@@ -1064,25 +1028,82 @@ const PropertyPage = () => {
                       <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
                       <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
                     </ul>
-                    <p>Are you sure you want to reject this offer?</p>
-                    <button onClick={rejectOffer}>REJECT OFFER</button>
-                    <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                  </div>
+
+                  {!ownersActiveMortgage ?
+                    <></>
+                    :
+                    offerToAccept.offer_value - ownersActiveMortgage.loan_value < 0 &&
+                    <p>Accepting offer at negative equity. Please ensure you have sufficeint funds before accepting this offer.</p>
+                  }
+                  <p>The purchase will be finalised when the buyer confirms purchase</p>
+                  <button className='green_button_style' onClick={acceptOffer}>ACCEPT OFFER</button>
+                  <button className='main_button_style' value={'none'} onClick={displayPopUp}>CANCEL</button>
+                </div>
+              </div>
+              :
+              popUpToShow === 'dontAcceptOffer' ?
+                <div className='pop_up'>
+                  <div className='text_popup'>
+                    <h4>-- DON'T ACCEPT OFFER --</h4>
+                    <div className='ul_pairing'>
+                      <ul>
+                        <li>Offer Value</li>
+                        <li>Mortgage To Pay Off</li>
+                        <li>Net Income</li>
+                      </ul>
+                      <ul>
+                        <li>{formatter.format(offerToAccept.offer_value)}</li>
+                        <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
+                        <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
+                      </ul>
+                    </div>
+                    <p>Are you sure you want to retract your acceptance of this offer?</p>
+                    <button className='orange_button_style' onClick={dontAcceptOffer}>DON'T ACCEPT OFFER</button>
+                    <button className='main_button_style' value={'none'} onClick={displayPopUp}>CANCEL</button>
+                  </div>
+                </div>
+                :
+                popUpToShow === 'rejectOffer' ?
+                  <div className='pop_up'>
+                    <div className='text_popup'>
+                      <h4>-- REJECT OFFER --</h4>
+                      <div className='ul_pairing'>
+                        <ul>
+                          <li>Offer Value</li>
+                          <li>Mortgage To Pay Off</li>
+                          <li>Net Income</li>
+                        </ul>
+                        <ul>
+                          <li>{formatter.format(offerToAccept.offer_value)}</li>
+                          <li>{ownersActiveMortgage ? formatter.format(0 - ownersActiveMortgage.loan_value) : 'No mortgage'}</li>
+                          <li>{ownersActiveMortgage ? formatter.format(offerToAccept.offer_value - ownersActiveMortgage.loan_value) : formatter.format(offerToAccept.offer_value)}</li>
+                        </ul>
+                      </div>
+                      <p>Are you sure you want to reject this offer?</p>
+                      <button className='main_button_style' onClick={rejectOffer}>REJECT OFFER</button>
+                      <button className='main_button_style' value={'none'} onClick={displayPopUp}>CANCEL</button>
+                    </div>
                   </div>
                   :
                   popUpToShow === 'takeOffMarket' ?
                     <div className='pop_up'>
-                      <h4>TAKE OFF MARKET</h4>
-                      <p>Are you sure?</p>
-                      <p>Taking a property off the market will result in all current offers being retracted.</p>
-                      <button onClick={takeOffMarket}>TAKE OFF MARKET</button>
-                      <button value={'none'} onClick={displayPopUp}>CANCEL</button>
+                      <div className='text_popup'>
+                        <h4>-- TAKE OFF MARKET --</h4>
+                        <p>Are you sure?</p>
+                        <p>Taking a property off the market will result in all current offers being retracted.</p>
+                        <button className='main_button_style' onClick={takeOffMarket}>TAKE OFF MARKET</button>
+                        <button className='main_button_style' value={'none'} onClick={displayPopUp}>CANCEL</button>
+                      </div>
                     </div>
                     :
                     popUpToShow === 'valuation' ?
                       <div className='pop_up'>
-                        <h4>YOUR NEW VALUATION</h4>
-                        <h3>{formatter.format(newValuation)}</h3>
-                        <button onClick={refeshPage}>OK</button>
+                        <div className='text_popup'>
+                          <h4>-- YOUR NEW VALUATION --</h4>
+                          <h4>{formatter.format(newValuation)}</h4>
+                          <button className='main_button_style' onClick={refeshPage}>OK</button>
+                        </div>
                       </div>
                       :
                       <></>}

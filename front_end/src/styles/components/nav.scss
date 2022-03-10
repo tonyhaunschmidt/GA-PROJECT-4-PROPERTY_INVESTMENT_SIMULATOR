@@ -3,6 +3,7 @@ nav {
   position: fixed;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid black;
   padding: 0 20vw;
   width: 100vw;
@@ -14,13 +15,16 @@ nav {
   }
   ul{
     display: flex;
+    align-items: center;
     list-style: none;
+    margin: 0;
     li{
-      margin-right: 20px;
+      margin: 0 20px 0 0;
     }
   }
   img{
-    height: 38px;
+    height: 30px;
+    margin: 5px 0;
   }
 
 

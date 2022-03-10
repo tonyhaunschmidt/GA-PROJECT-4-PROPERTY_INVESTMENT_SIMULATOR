@@ -38,7 +38,7 @@ const Nav = () => {
   return (
     <nav >
       <Link to='/'><img src={smallLogo} alt='favicon logo' className='small-logo' /></Link>
-      <ul className="dropdown-list">
+      <ul>
         <li><Link to={'/myportfolio'}>My Portfolio</Link></li>
         <li><Link to="/marketplace">Marketplace</Link></li>
         <li><Link to="/email">Email</Link></li>
