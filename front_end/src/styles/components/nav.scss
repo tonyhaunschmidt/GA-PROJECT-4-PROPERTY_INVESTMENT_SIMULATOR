@@ -1,10 +1,12 @@
 nav {
-  z-index: 999;
+  z-index: 50;
+  position: fixed;
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid black;
   padding: 0 20vw;
-  min-width: 700px;
+  width: 100vw;
+  background-color: white;
   .link{
     &:hover{
       cursor: pointer;

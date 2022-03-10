@@ -4,5 +4,20 @@ $main_color: #e32b2b;
   background-color: $main_color;
   color: white;
   border-radius: 6px;
+  margin-right: 15px;
+  min-width: 100px;
 }
 
+.ul_pairing{
+  display: flex;
+  justify-content: space-between;
+  ul{
+    list-style: none;
+    padding: 0;
+  }  
+}
+
+.small_error_text{
+  font-size: x-small;
+  color: $main_color;
+}

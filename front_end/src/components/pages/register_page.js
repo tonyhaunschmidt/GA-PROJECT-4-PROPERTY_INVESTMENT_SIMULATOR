@@ -56,7 +56,6 @@ const RegisterPage = () => {
           </>
           :
           <>
-            <h4>JOIN</h4>
             {intro ?
               <>
                 <p className='intro'>You're a budding property investor. You've saved £25 000 and can't wait to buy your first investment property.</p>

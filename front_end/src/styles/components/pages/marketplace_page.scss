@@ -2,11 +2,11 @@
   
 .market_page_section{
   width: 100vw;
-  padding: 0 20vw;
+  padding: 60px 20vw;
   min-width: 700px;
 
   .market_list{
-    height: 80vh;
+    height: 70vh;
     
     overflow-y: scroll;
     
@@ -21,9 +21,7 @@
     .carousel{
       max-width: 300px;
       margin: 0;
-      .slide{
-        
-      }
+
       .img{
         height: 100%;
       }
