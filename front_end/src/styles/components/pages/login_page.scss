@@ -1,0 +1,24 @@
+.login_page{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  form{
+    
+    background-color: lightgrey;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    width: 400px;
+    /*padding: 20%;*/
+    box-shadow: 10px 10px 15px rgb(158, 158, 158) ;
+    border: 1px solid black;
+    border-radius: 15px;
+    input{
+      margin-bottom: 10px;
+    }
+  }
+}

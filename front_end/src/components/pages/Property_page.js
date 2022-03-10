@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { getPayload, getTokenFromLocalStorage } from '../helpers/authHelper'
+import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
+
+import Nav from '../Nav'
 
 const PropertyPage = () => {
 
@@ -53,6 +55,7 @@ const PropertyPage = () => {
 
 
   useEffect(() => {
+    !userIsAuthenticated() && navigate('/')
     const getProperty = async () => {
       try {
         const { data } = await axios.get(`/api/properties/${id}`)
@@ -639,6 +642,7 @@ const PropertyPage = () => {
       property.owner === getPayload().sub ?
 
         <section className='property_page'> {/*************OWN PROPERTY*/}
+          <Nav />
           {level.imageArray.map(imageURL =>
             <img key={imageURL} src={imageURL} alt={`${property.address} ${level.imageArray.indexOf(imageURL) + 1}`} />
           )}
@@ -1077,6 +1081,7 @@ const PropertyPage = () => {
 
 
           <section className='property_page'> {/*************FOR SALE POST*/}
+            <Nav />
             {level.imageArray.map(imageURL =>
               <img key={imageURL} src={imageURL} alt={`${property.address} ${level.imageArray.indexOf(imageURL) + 1}`} />
             )}
@@ -1221,6 +1226,7 @@ const PropertyPage = () => {
 
 
           <section className='property_page'> {/*************NOT OWNED/NOT FOR SALE*/}
+            <Nav />
             <p>THIS PROPERTY IS NOT CURRENTLY ON THE MARKET</p>
           </section>
 

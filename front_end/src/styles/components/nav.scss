@@ -1,0 +1,25 @@
+nav {
+  z-index: 999;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid black;
+  padding: 0 20vw;
+  min-width: 700px;
+  .link{
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  ul{
+    display: flex;
+    list-style: none;
+    li{
+      margin-right: 20px;
+    }
+  }
+  img{
+    height: 38px;
+  }
+
+
+}

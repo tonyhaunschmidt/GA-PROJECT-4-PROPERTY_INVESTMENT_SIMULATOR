@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
-const LoginPage = () => {
+import smallLogo from '../../assets/small_logo.png'
+
+const LogIn = () => {
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
@@ -32,12 +34,16 @@ const LoginPage = () => {
   return (
     <section className='login_page'>
       <form onSubmit={handleSubmit}>
+        <Link to='/'><img src={smallLogo} alt='favicon logo' className='small-logo' /></Link>
+        <h4>LOG IN</h4>
         <input type='text' name='email' placeholder='Email' onChange={handleFormInput} />
         <input type='password' name='password' placeholder='Password' onChange={handleFormInput} />
-        <button>LOG IN</button>
+        <button className='main_button_style'>LOG IN</button>
+        <hr />
+        <p>Don't have an account? <Link to='/register'>Join</Link></p>
       </form>
     </section>
   )
 }
 
-export default LoginPage
+export default LogIn

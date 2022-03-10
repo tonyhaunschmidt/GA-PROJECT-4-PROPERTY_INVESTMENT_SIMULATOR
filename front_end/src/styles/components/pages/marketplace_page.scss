@@ -1,0 +1,39 @@
+.marketplace_page {
+  
+.market_page_section{
+  width: 100vw;
+  padding: 0 20vw;
+  min-width: 700px;
+
+  .market_list{
+    height: 80vh;
+    
+    overflow-y: scroll;
+    
+    .property_card{
+    border: 1px solid black;
+    display: flex;
+    height: 200px;
+    /*width: 80vw;*/
+    margin-bottom: 30px;
+    border-radius: 10px;
+    overflow: hidden;
+    .carousel{
+      max-width: 300px;
+      margin: 0;
+      .slide{
+        
+      }
+      .img{
+        height: 100%;
+      }
+    }
+    .property_info{
+      margin: 20px
+    }
+  }
+  }
+  
+
+}
+}

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { getPayload, getTokenFromLocalStorage } from '../helpers/authHelper'
+import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
+
+import Nav from '../Nav'
 
 const MyPortfolioPage = () => {
 
-  const currentUserID = getPayload().sub
+  const navigate = useNavigate()
+
+
 
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
@@ -28,6 +32,11 @@ const MyPortfolioPage = () => {
 
 
   useEffect(() => {
+    !userIsAuthenticated() && navigate('/')
+    let currentUserID
+    if (getPayload()) {
+      currentUserID = getPayload().sub
+    }
     const getUser = async () => {
       try {
         const userdata = await axios.get(`/api/auth/${currentUserID}`)
@@ -167,6 +176,7 @@ const MyPortfolioPage = () => {
 
   return (
     <section className='my_portfolio_page'>
+      <Nav />
       <h1>MY PORTFOLIO</h1>
       <div>
         <div>

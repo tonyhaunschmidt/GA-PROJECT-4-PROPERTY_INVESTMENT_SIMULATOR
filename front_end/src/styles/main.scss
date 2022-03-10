@@ -1,0 +1,15 @@
+@import './variables';
+
+@import './components/pages/welcome_page';
+@import './components/pages/login_page';
+@import './components/pages/register_page';
+@import './components/pages/marketplace_page';
+@import './components/pages/myportfolio_page';
+@import './components/pages/property_page';
+@import './components/nav.scss';
+
+a{
+  text-decoration: none;
+  color: black;
+  
+}
