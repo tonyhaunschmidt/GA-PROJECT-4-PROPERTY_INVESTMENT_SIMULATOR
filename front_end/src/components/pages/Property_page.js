@@ -653,11 +653,11 @@ const PropertyPage = () => {
               )}
             </Carousel>
             <h2>{property.house_number_or_name} {property.address}</h2>
-            <h4>TRANSACTION HISTORY</h4>
-            <div>
+            <h5>TRANSACTION HISTORY</h5>
+            <div className='transaction_container'>
               {currentTermPropertyTransactions.map((transaction, index) =>
                 transaction.type === 'mortgage' ?
-                  <div key={index}>
+                  <div className='ul_pairing' key={index}>
                     <ul>
                       <li>Mortgage Loan</li>
                       <li>Loan Amount</li>
@@ -669,7 +669,7 @@ const PropertyPage = () => {
                   </div>
                   :
                   transaction.type === 'property_purchase' ?
-                    <div key={index}>
+                    <div className='ul_pairing' key={index}>
                       <ul>
                         <li>Property Purchase</li>
                         <li>Purchase</li>
@@ -685,7 +685,7 @@ const PropertyPage = () => {
                     </div>
                     :
                     transaction.type === 'paid_mortgage' ?
-                      <div key={index}>
+                      <div className='ul_pairing' key={index}>
                         <ul>
                           <li>Full Mortgage Payment</li>
                           <li>Payment</li>
@@ -697,7 +697,7 @@ const PropertyPage = () => {
                       </div>
                       :
                       transaction.type === 'income' ?
-                        <div key={index}>
+                        <div className='ul_pairing' key={index}>
                           <ul>
                             <li>Property Income</li>
                             <li>Payment</li>
@@ -709,7 +709,7 @@ const PropertyPage = () => {
                         </div>
                         :
                         transaction.type === 'valuation' ?
-                          <div key={index}>
+                          <div className='ul_pairing' key={index}>
                             <ul>
                               <li>New Valuation</li>
                               <li>Valuation</li>
@@ -721,7 +721,7 @@ const PropertyPage = () => {
                           </div>
                           :
                           transaction.type === 'improvement' ?
-                            <div key={index}>
+                            <div className='ul_pairing' key={index}>
                               <ul>
                                 <li>Home Imporvement</li>
                                 <li>Payment</li>
@@ -732,7 +732,7 @@ const PropertyPage = () => {
                               </ul>
                             </div>
                             :
-                            <div key={index}>
+                            <div className='ul_pairing' key={index}>
                               <ul>
                                 <li>{transaction.type}</li>
                                 <li>Payment</li>
@@ -746,136 +746,144 @@ const PropertyPage = () => {
             </div>
             <hr />
             <div>
-              <h4>MONTH BREAKDOWN</h4>
+              <h5>MORTGAGE AND LETTING</h5>
+              <h6>Mortgage</h6>
               {ownersActiveMortgage ?
                 <div>
-                  <h6>Mortgage</h6>
-                  <ul>
-                    <li>Type</li>
-                    <li>LTV</li>
-                    <li>loan Value</li>
-                    <li>Term</li>
-                    <li>Remaining Term</li>
-                    <li>Interest</li>
-                    <li>Monthly Payments</li>
-                  </ul>
-                  <ul>
-                    <li>Interest Only (Fixed Rate)</li>
-                    <li>{ownersActiveMortgage.LTV}%</li>
-                    <li>{formatter.format(ownersActiveMortgage.loan_value)}</li>
-                    <li>25 Years</li>
-                    <li>Remaining Term</li> {/*FORMAT AFTER VIRTUAL CALENDAR*/}
-                    <li>{ownersActiveMortgage.interest}%</li>
-                    <li>{formatter.format(Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))}</li>
-                  </ul>
+
+                  <div className='ul_pairing'>
+                    <ul>
+                      <li>Type</li>
+                      <li>LTV</li>
+                      <li>loan Value</li>
+                      <li>Term</li>
+                      <li>Remaining Term</li>
+                      <li>Interest</li>
+                      <li>Monthly Payments</li>
+                    </ul>
+                    <ul>
+                      <li>Interest Only (Fixed Rate)</li>
+                      <li>{ownersActiveMortgage.LTV}%</li>
+                      <li>{formatter.format(ownersActiveMortgage.loan_value)}</li>
+                      <li>25 Years</li>
+                      <li>Remaining Term</li> {/*FORMAT AFTER VIRTUAL CALENDAR*/}
+                      <li>{ownersActiveMortgage.interest}%</li>
+                      <li>{formatter.format(Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))}</li>
+                    </ul>
+                  </div>
                 </div>
                 :
-                <></>}
+                <p>This property has no mortgage</p>}
 
               <div>
                 <h6>Letting</h6>
-                <ul>
-                  <li>Agent</li>
-                  <li>Monthly Fee</li>
-                  <li>Status</li>
-                  <li>Monthly Income</li>
-                </ul>
-                {console.log(currentLetAgent)}
-                {currentLetAgent.id ?
+                <div className='ul_pairing'>
                   <ul>
-                    {currentLetAgent.grade === 'A' ?
-                      <li>Premium Gold Lets</li>
-                      : currentLetAgent.grade === 'B' ?
-                        <li>Middle Lettings</li>
-                        : currentLetAgent.grade === 'C' &&
-                        <li>Lettings 'R' us</li>
-                    }
-                    {currentLetAgent.void ?
-                      <li>£0</li>
-                      : currentLetAgent.grade === 'A' ?
-                        <li>{formatter.format(Math.ceil(level.baseRate * 0.2))}</li>
+                    <li>Agent</li>
+                    <li>Monthly Fee</li>
+                    <li>Status</li>
+                    <li>Monthly Income</li>
+                  </ul>
+                  {console.log(currentLetAgent)}
+                  {currentLetAgent.id ?
+                    <ul>
+                      {currentLetAgent.grade === 'A' ?
+                        <li>Premium Gold Lets</li>
                         : currentLetAgent.grade === 'B' ?
-                          <li>{formatter.format(Math.ceil(level.baseRate * 0.15))}</li>
+                          <li>Middle Lettings</li>
                           : currentLetAgent.grade === 'C' &&
-                          <li>{formatter.format(Math.ceil(level.baseRate * 0.1))}</li>
-                    }
-                    <li>{currentLetAgent.void ? 'VOID' : 'LET'}</li>
-                    {currentLetAgent.void ?
+                          <li>Lettings 'R' us</li>
+                      }
+                      {currentLetAgent.void ?
+                        <li>£0</li>
+                        : currentLetAgent.grade === 'A' ?
+                          <li>{formatter.format(Math.ceil(level.baseRate * 0.2))}</li>
+                          : currentLetAgent.grade === 'B' ?
+                            <li>{formatter.format(Math.ceil(level.baseRate * 0.15))}</li>
+                            : currentLetAgent.grade === 'C' &&
+                            <li>{formatter.format(Math.ceil(level.baseRate * 0.1))}</li>
+                      }
+                      <li>{currentLetAgent.void ? 'VOID' : 'LET'}</li>
+                      {currentLetAgent.void ?
+                        <li>£0</li>
+                        :
+                        <li>{formatter.format(level.baseRate)}</li>
+                      }
+                    </ul>
+                    :
+                    <ul>
+                      <li>You do not currenlty have a letting agent organised for this property</li>
                       <li>£0</li>
-                      :
-                      <li>{formatter.format(level.baseRate)}</li>
-                    }
-                  </ul>
-                  :
-                  <ul>
-                    <li>You do not currenlty have a letting agent organised for this property</li>
-                    <li>£0</li>
-                    <li>VOID</li>
-                    <li>£0</li>
-                  </ul>
-                }
+                      <li>VOID</li>
+                      <li>£0</li>
+                    </ul>
+                  }
+                </div>
               </div>
 
               <div>
-                <h6>CURRENT MONTH BREAKDOWN</h6>
-                <ul>
-                  <li>Mortgage Payment</li>
-                  <li>Rent Income</li>
-                  {currentLetAgent.void ? <li>Void Bills</li> : <></>}
-                  <li>Letting Fee</li>
-                  <li>TOTAL INCOME</li>
-                </ul>
-                <ul>
-                  <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
-                  {currentLetAgent.void ?
-                    <li>£0</li>
-                    : currentLetAgent.grade === 'A' ?
-                      <li>{formatter.format(level.baseRate)}</li>
-                      : currentLetAgent.grade === 'B' ?
+                <h6>Current Month Breakdown</h6>
+                <div className='ul_pairing'>
+                  <ul>
+                    <li>Mortgage Payment</li>
+                    <li>Rent Income</li>
+                    {currentLetAgent.void ? <li>Void Bills</li> : <></>}
+                    <li>Letting Fee</li>
+                    <li>TOTAL INCOME</li>
+                  </ul>
+                  <ul>
+                    <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
+                    {currentLetAgent.void ?
+                      <li>£0</li>
+                      : currentLetAgent.grade === 'A' ?
                         <li>{formatter.format(level.baseRate)}</li>
-                        : currentLetAgent.grade === 'C' &&
-                        <li>{formatter.format(level.baseRate)}</li>
-                  }
-                  {currentLetAgent.void ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
-                  {currentLetAgent.void ?
-                    <li>£0</li>
-                    : currentLetAgent.grade === 'A' ?
-                      <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.2))}</li>
-                      : currentLetAgent.grade === 'B' ?
-                        <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.15))}</li>
-                        : currentLetAgent.grade === 'C' &&
-                        <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.1))}</li>
-                  }
-                  {currentLetAgent.void ?
-                    <li>{ownersActiveMortgage ?
-                      formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)) - property.void_upkeep)
-                      :
-                      formatter.format(0 - property.void_upkeep)
-                    }</li>
-                    : currentLetAgent.grade === 'A' ?
+                        : currentLetAgent.grade === 'B' ?
+                          <li>{formatter.format(level.baseRate)}</li>
+                          : currentLetAgent.grade === 'C' &&
+                          <li>{formatter.format(level.baseRate)}</li>
+                    }
+                    {currentLetAgent.void ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
+                    {currentLetAgent.void ?
+                      <li>£0</li>
+                      : currentLetAgent.grade === 'A' ?
+                        <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.2))}</li>
+                        : currentLetAgent.grade === 'B' ?
+                          <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.15))}</li>
+                          : currentLetAgent.grade === 'C' &&
+                          <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.1))}</li>
+                    }
+                    {currentLetAgent.void ?
                       <li>{ownersActiveMortgage ?
-                        formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                        formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)) - property.void_upkeep)
                         :
-                        formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate)
+                        formatter.format(0 - property.void_upkeep)
                       }</li>
-                      : currentLetAgent.grade === 'B' ?
+                      : currentLetAgent.grade === 'A' ?
                         <li>{ownersActiveMortgage ?
-                          formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                          formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
                           :
-                          formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate)
+                          formatter.format(0 - Math.ceil(level.baseRate * 0.2) + level.baseRate)
                         }</li>
-                        : currentLetAgent.grade === 'C' &&
-                        <li>{ownersActiveMortgage ?
-                          formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
-                          :
-                          formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate)
-                        }</li>
-                  }
-                </ul>
+                        : currentLetAgent.grade === 'B' ?
+                          <li>{ownersActiveMortgage ?
+                            formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                            :
+                            formatter.format(0 - Math.ceil(level.baseRate * 0.15) + level.baseRate)
+                          }</li>
+                          : currentLetAgent.grade === 'C' &&
+                          <li>{ownersActiveMortgage ?
+                            formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)))
+                            :
+                            formatter.format(0 - Math.ceil(level.baseRate * 0.1) + level.baseRate)
+                          }</li>
+                    }
+                  </ul>
+                </div>
               </div>
             </div>
             <hr />
-            <div>
+            <h5>PROPERTY OVERVIEW</h5>
+            <div className='ul_pairing overview'>
               <ul>
                 <li>Total Money Invested</li>
                 <li>Borrowed Money</li>
@@ -916,16 +924,16 @@ const PropertyPage = () => {
               :
               <div>
                 <div>
-                  <button value={'manageLetting'} onClick={displayWorkplace}>MANAGE LETTING</button>
-                  <button value={'improvements'} onClick={displayWorkplace}>IMPROVEMENTS</button>
-                  <button value={'getValuation'} onClick={displayWorkplace}>GET VALUATION (£500)</button> {/*ADD CONDITIONS FOR IF A VALUATION HAS ALREADY BEEN MADE IN THE LAST MONTH*/}
-                  <button value={'remortgage'} onClick={displayWorkplace}>REMORTGAGE</button> {/*ADD CONDITION FOR IF A VALUATION HAS BEEN MADE IN THE LAST MONTH*/}
+                  <button className='main_button_style' value={'manageLetting'} onClick={displayWorkplace}>MANAGE LETTING</button>
+                  <button className='main_button_style' value={'improvements'} onClick={displayWorkplace}>IMPROVEMENTS</button>
+                  <button className='main_button_style' value={'getValuation'} onClick={displayWorkplace}>GET VALUATION (£500)</button> {/*ADD CONDITIONS FOR IF A VALUATION HAS ALREADY BEEN MADE IN THE LAST MONTH*/}
+                  <button className='main_button_style' value={'remortgage'} onClick={displayWorkplace}>REMORTGAGE</button> {/*ADD CONDITION FOR IF A VALUATION HAS BEEN MADE IN THE LAST MONTH*/}
                   {ownersActiveMortgage ?
-                    <button value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button>
+                    <button className='main_button_style' value={'payMortgage'} onClick={displayWorkplace}>PAY OFF MORTGAGE</button>
                     :
                     <button>PAY OFF MORTGAGE</button>
                   }
-                  <button value={'putOnMarket'} onClick={displayWorkplace}>PUT ON MARKET</button>
+                  <button className='main_button_style' value={'putOnMarket'} onClick={displayWorkplace}>PUT ON MARKET</button>
                 </div>
                 <div>
                   {workplaceToDisplay === 'manageLetting' ?
@@ -946,7 +954,7 @@ const PropertyPage = () => {
                         <option value='B' disabled={currentLetAgent.grade === 'B'}>Middle Lettings (15% rent fee)</option>
                         <option value='A' disabled={currentLetAgent.grade === 'A'}>Premium Gold Lets (20% rent fee)</option>
                       </select>
-                      <button onClick={handleLettingChange}>CHANGE LETTING</button>
+                      <button className='main_button_style' onClick={handleLettingChange}>CHANGE LETTING</button>
                       <p>{popUpMessage}</p>
                       <p>Changing your letting agent will initiate a new void period</p>
                     </div>
@@ -968,7 +976,7 @@ const PropertyPage = () => {
                           <div>
                             <h4>VALUATION</h4>
                             <p>Cost to valuate your property- £500</p>
-                            <button onClick={getValuation}>GET VALUATION</button>
+                            <button className='main_button_style' onClick={getValuation}>GET VALUATION</button>
                             <p>{popUpMessage}</p>
                           </div>
                         :
@@ -983,7 +991,7 @@ const PropertyPage = () => {
                               <h4>PAY OFF MORTGAGE</h4>
                               <p>Pay off full mortgage loan value?</p>
                               <h5>{formatter.format(ownersActiveMortgage.loan_value)}</h5>
-                              <button onClick={handlePayOffMortgage}>PAY OFF MORTGAGE</button>
+                              <button className='main_button_style' onClick={handlePayOffMortgage}>PAY OFF MORTGAGE</button>
                               <p>{popUpMessage}</p>
 
                             </div>
@@ -993,7 +1001,7 @@ const PropertyPage = () => {
                                 <h4>PUT ON MARKET</h4>
                                 <label for='offer_value'>Asking Price (£)</label>
                                 <input type='number' min='1' step='1' name='offer_value' onChange={updateAskingPrice} />
-                                <button onClick={putOnMarket}>CONFIRM</ button>
+                                <button className='main_button_style' onClick={putOnMarket}>CONFIRM</ button>
                                 <p>Once your property is on the market you can no longer manage lettings, make improvements or remortgage</p>
                               </div>
                               :
@@ -1096,15 +1104,15 @@ const PropertyPage = () => {
                   </Carousel.Item>
                 )}
               </Carousel>
-              <div></div>
-              <h3>{level.shortDescription}</h3>
-              <h4>{property.address}</h4>
-              <h1>{formatter.format(property.asking_price)}</h1>
-
-
+              <div className='prop_info'>
+                <div>
+                  <h3>{level.shortDescription}</h3>
+                  <h4>{property.address}</h4>
+                </div>
+                <h1>{formatter.format(property.asking_price)}</h1>
+              </div>
               {level.longDescriptionParagraphs.map((paragraph, index) =>
                 <p key={index}>{paragraph}</p>
-
               )}
               <div>
                 {userHasActiveOffer ?
