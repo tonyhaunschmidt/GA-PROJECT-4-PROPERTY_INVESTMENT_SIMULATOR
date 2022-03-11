@@ -1003,8 +1003,10 @@ const PropertyPage = () => {
                             workplaceToDisplay === 'putOnMarket' ?
                               <div>
                                 <h5>-- PUT ON MARKET --</h5>
-                                <label for='offer_value'>Asking Price (£)</label>
-                                <input type='number' min='1' step='1' name='offer_value' onChange={updateAskingPrice} />
+                                <div className='money_input'>
+                                  <label for='offer_value'>£</label>
+                                  <input type='number' min='1' step='1' name='offer_value' placeholder='Asking Price' onChange={updateAskingPrice} />
+                                </div>
                                 <button className='main_button_style' onClick={putOnMarket}>CONFIRM</ button>
                                 <p>Once your property is on the market you can no longer manage lettings, make improvements or remortgage</p>
                               </div>

@@ -2,9 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
+import ReactMapGl, { Marker } from 'react-map-gl'
+
 
 import Carousel from 'react-bootstrap/Carousel'
 import Nav from '../Nav'
+
+const mapToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN
 
 const MyPortfolioPage = () => {
 
@@ -29,6 +33,11 @@ const MyPortfolioPage = () => {
   const [ownedEquity, setOwnedEquity] = useState(0)
   const [marketplaceProperties, setMarketplaceProperties] = useState([])
   const [marketPropertiesToDisplay, setMarketPropertiesToDisplay] = useState([])
+  const [viewport, setViewport] = useState({
+    latitude: 51.515,
+    longitude: -0.078,
+    zoom: 6,
+  })
 
 
 
@@ -175,6 +184,8 @@ const MyPortfolioPage = () => {
 
 
 
+
+
   return (
     <section className='my_portfolio_page'>
       <Nav />
@@ -203,7 +214,19 @@ const MyPortfolioPage = () => {
             </div>
           </div>
           <div className='map'>
-            <p>[map]</p>
+            <ReactMapGl
+              mapboxAccessToken='pk.eyJ1IjoidG9ueWhhdW5zY2htaWR0IiwiYSI6ImNsMGxxN2Y1eTAxamEza253bGk0aDY1ZWgifQ.r583dvme3BozIBF7sZZZaw'
+              height='100%'
+              width='100%'
+              mapStyle='mapbox://styles/mapbox/streets-v11'
+              {...viewport}
+              zoom={5}
+            >
+              {usersProperties.map(property =>
+                <Marker latitude={property.lon} longitude={property.lat}>🏠</Marker>
+              )}
+
+            </ReactMapGl>
           </div>
         </div>
         <div className='table_container'>

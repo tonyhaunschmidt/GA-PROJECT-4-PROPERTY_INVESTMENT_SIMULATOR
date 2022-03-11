@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import './styles/main.scss';
 import App from './App';
 
