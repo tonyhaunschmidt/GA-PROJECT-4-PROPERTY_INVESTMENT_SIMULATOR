@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
+import ReactMapGl, { Marker } from 'react-map-gl'
 
 import Nav from '../Nav'
 
@@ -54,6 +55,11 @@ const PropertyPage = () => {
   const [selectedLetAgent, setSelectedLetAgent] = useState({})
   const [newValuation, setnewValuation] = useState(0)
   const [savedProperty, setSavedProperty] = useState(false)
+  const [viewState, setViewState] = useState({
+    latitude: 55.3781,
+    longitude: -3.4360,
+    zoom: 4,
+  })
 
 
   useEffect(() => {
@@ -62,6 +68,11 @@ const PropertyPage = () => {
       try {
         const { data } = await axios.get(`/api/properties/${id}`)
         setProperty(data)
+        setViewState({
+          longitude: data.lat,
+          latitude: data.lon,
+          zoom: 15,
+        })
         if (data.level === 1) {
           const imagesArray = data.images_level1.split('&')
           const paragraphArray = data.long_description_level1.split('$%')
@@ -98,12 +109,15 @@ const PropertyPage = () => {
         }
 
 
+
       } catch (err) {
         console.log(err)
       }
     }
     getProperty()
   }, [])
+
+
 
 
 
@@ -131,6 +145,8 @@ const PropertyPage = () => {
         setCurrentTermPropertyTransactions(transactions.data.filter(transaction => transaction.property_ownership_term === property.ownership_term))
         const lettings = await axios.get(`/api/lettings/propertyspecific/${id}`)
         lettings.data.some(letting => letting.current === true) && setCurrentLetAgent(lettings.data.find(letting => letting.current === true))
+        console.log(property.lat)
+
       } catch (err) {
         console.log(err)
       }
@@ -1137,6 +1153,7 @@ const PropertyPage = () => {
               {level.longDescriptionParagraphs.map((paragraph, index) =>
                 <p key={index}>{paragraph}</p>
               )}
+
               <div>
                 {userHasActiveOffer ?
                   usersActiveOffer.accepted ?
@@ -1156,6 +1173,18 @@ const PropertyPage = () => {
                   :
                   <button className='main_button_style' onClick={handleSave}>SAVE</button>
                 }
+              </div>
+              <div className='map'>
+                <ReactMapGl
+                  mapboxAccessToken='pk.eyJ1IjoidG9ueWhhdW5zY2htaWR0IiwiYSI6ImNsMGxxN2Y1eTAxamEza253bGk0aDY1ZWgifQ.r583dvme3BozIBF7sZZZaw'
+                  height='100%'
+                  width='100%'
+                  mapStyle='mapbox://styles/mapbox/streets-v11'
+                  {...viewState}
+                  onMove={evt => setViewState(evt.viewState)}
+                >
+                  <Marker latitude={property.lon} longitude={property.lat}>🏠</Marker>
+                </ReactMapGl>
               </div>
             </div>
 

@@ -16,6 +16,14 @@
       width: 100%;
     }
     }
+    .map{
+      height: 400px;
+      overflow: hidden;
+      border: 2px solid, black;
+      border-radius: 10px;
+      box-shadow: 10px 10px 15px rgb(158, 158, 158) ;
+      margin-top: 50px;
+    }
     .prop_info{
       display: flex;
       justify-content: space-between;

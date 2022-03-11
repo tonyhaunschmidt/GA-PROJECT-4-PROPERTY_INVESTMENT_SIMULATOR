@@ -33,10 +33,10 @@ const MyPortfolioPage = () => {
   const [ownedEquity, setOwnedEquity] = useState(0)
   const [marketplaceProperties, setMarketplaceProperties] = useState([])
   const [marketPropertiesToDisplay, setMarketPropertiesToDisplay] = useState([])
-  const [viewport, setViewport] = useState({
-    latitude: 51.515,
-    longitude: -0.078,
-    zoom: 6,
+  const [viewState, setViewState] = useState({
+    latitude: 55.3781,
+    longitude: -3.4360,
+    zoom: 4,
   })
 
 
@@ -219,8 +219,8 @@ const MyPortfolioPage = () => {
               height='100%'
               width='100%'
               mapStyle='mapbox://styles/mapbox/streets-v11'
-              {...viewport}
-              zoom={5}
+              {...viewState}
+              onMove={evt => setViewState(evt.viewState)}
             >
               {usersProperties.map(property =>
                 <Marker latitude={property.lon} longitude={property.lat}>🏠</Marker>
