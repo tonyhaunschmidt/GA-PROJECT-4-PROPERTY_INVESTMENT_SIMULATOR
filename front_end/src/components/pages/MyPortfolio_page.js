@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
 
+import Carousel from 'react-bootstrap/Carousel'
 import Nav from '../Nav'
 
 const MyPortfolioPage = () => {
@@ -80,8 +81,8 @@ const MyPortfolioPage = () => {
           voidBills: 0,
           lettingFee: 0,
           total: 0,
-          void: true,
-          noLettingAgent: true
+          void: false,
+          noLettingAgent: false
         }
         //mortgage calc
         if (usersActiveMortgages.some(mortgage => mortgage.property === usersProperties[i].id)) {
@@ -93,9 +94,8 @@ const MyPortfolioPage = () => {
         //rent calc
         if (usersActiveLets.some(letting => letting.property === usersProperties[i].id)) {
           const propertyLetting = usersActiveLets.find(letting => letting.property === usersProperties[i].id)
-          property.noLettingAgent = false
+
           if (!propertyLetting.void) {
-            property.void = false
             property.rentIncome = baseRate
             //letting calc
             if (propertyLetting.grade === 'A') {
@@ -107,10 +107,11 @@ const MyPortfolioPage = () => {
             }
           } else {
             //void calc
+            property.void = true
             property.voidBills = usersProperties[i].void_upkeep
           }
         } else {
-          //delete else if not needed
+          property.noLettingAgent = true
           property.voidBills = usersProperties[i].void_upkeep
         }
         //total calc
@@ -177,90 +178,119 @@ const MyPortfolioPage = () => {
   return (
     <section className='my_portfolio_page'>
       <Nav />
-      <h1>MY PORTFOLIO</h1>
-      <div>
-        <div>
-          <p>{user.first_name} {user.last_name}</p>
-          <ul>
-            <li>Capital</li>
-            <li>Properties Owned</li>
-            <li>Next Month Income</li>
-            <li>Mortgage Loans</li>
-            <li>Owned Equity</li>
-            <li>Net Worth</li>
-          </ul>
-          <ul>
-            <li>{formatter.format(user.capital)}</li>
-            <li>{usersProperties.length}</li>
-            <li>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</li>
-            <li>{formatter.format(totalMortgageLoans)}</li>
-            <li>{formatter.format(ownedEquity)}</li>
-            <li>{formatter.format(user.capital + ownedEquity)}</li>
-          </ul>
+      <div className='my_portfolio_section'>
+        <h1>MY PORTFOLIO</h1>
+        <div className='stats_and_map'>
+          <div className='stats'>
+            <h5><b>{user.first_name} {user.last_name}</b></h5>
+            <div className='ul_pairing'>
+              <ul>
+                <li><b>Capital:</b></li>
+                <li><b>Properties Owned:</b></li>
+                <li><b>Next Month Income:</b></li>
+                <li><b>Mortgage Loans:</b></li>
+                <li><b>Owned Equity:</b></li>
+                <li><b>Net Worth:</b></li>
+              </ul>
+              <ul>
+                <li>{formatter.format(user.capital)}</li>
+                <li>{usersProperties.length}</li>
+                <li>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</li>
+                <li>{formatter.format(totalMortgageLoans)}</li>
+                <li>{formatter.format(ownedEquity)}</li>
+                <li>{formatter.format(user.capital + ownedEquity)}</li>
+              </ul>
+            </div>
+          </div>
+          <div className='map'>
+            <p>[map]</p>
+          </div>
         </div>
-        <div>
-          <p>[map]</p>
-        </div>
-      </div>
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th>Property</th>
-              <th>Rent Income</th>
-              <th>Mortgage Payment</th>
-              <th>Void</th>
-              <th>Letting Fee</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {propertyStats.map((property, index) =>
-              <tr key={index}>
-                <td><Link to={`/property/${property.id}`}>{property.property}</Link></td>
-                <td>{formatter.format(property.rentIncome)}</td>
-                <td>{formatter.format(0 - property.mortgagePayment)}</td>
-                <td>{formatter.format(0 - property.voidBills)}</td>
-                <td>{formatter.format(0 - property.lettingFee)}</td>
-                <td>{formatter.format(property.total)}</td>
+        <div className='table_container'>
+          <table className='key'>
+            <tbody>
+              <tr>
+                <td className='void'>Void</td>
+                <td className='no_letting'> No Letting Agent</td>
               </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <th id="total" colSpan="5">Total :</th>
-              <td>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <h4>Offers Submitted/Saved Properties For Sale</h4>
-      <div>
-        {marketPropertiesToDisplay?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT??
-          const description = property.level === 1 ? property.short_description_level1 :
-            property.level === 2 ? property.short_description_level2 :
-              property.short_description_level3
-          const images = property.level === 1 ? property.images_level1 :
-            property.level === 2 ? property.images_level2 :
-              property.images_level3
-          const imagesArray = images.split('&')
-          return (
-            <Link key={property.id} to={`/property/${property.id}`}>
-              <div>
-                {imagesArray.map(imageURL =>
-                  <img key={imageURL} src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
-                )}
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Rent Income</th>
+                <th>Mortgage Payment</th>
+                <th>Letting Fee</th>
+                <th>Void</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {propertyStats.map((property, index) =>
+                <tr className={`property_row ${property.void && 'void'} ${property.noLettingAgent && 'no_letting'}`} key={index}>
+                  <td><Link to={`/property/${property.id}`}>{property.property}</Link></td>
+                  <td>{formatter.format(property.rentIncome)}</td>
+                  <td>{formatter.format(0 - property.mortgagePayment)}</td>
+                  <td>{formatter.format(0 - property.lettingFee)}</td>
+                  <td>{formatter.format(0 - property.voidBills)}</td>
+                  <td className={property.total < 0 && 'negative'}>{formatter.format(property.total)}</td>
+                </tr>
+              )}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th id="total" colSpan="5">Total: </th>
+                <td className={propertyStats.reduce((sum, property) => sum + property.total, 0) < 0 && 'negative'}><b>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</b></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <hr />
+        <h4>Offers Submitted/Saved Properties For Sale</h4>
+        <div className='market_list'>
+          {marketPropertiesToDisplay.length ?
+            marketPropertiesToDisplay?.map(property => {  //SPLIT THIS WHOLE CARD INTO A SEPERATE COMPONENT??
+              const description = property.level === 1 ? property.short_description_level1 :
+                property.level === 2 ? property.short_description_level2 :
+                  property.short_description_level3
+              const images = property.level === 1 ? property.images_level1 :
+                property.level === 2 ? property.images_level2 :
+                  property.images_level3
+              const imagesArray = images.split('&')
+              return (
+                <Link key={property.id} to={`/property/${property.id}`}>
+                  <div className='property_card'>
+                    <Carousel interval={null}>
+                      {imagesArray.map((imageURL, index) =>
+                        <Carousel.Item key={index}>
+                          <img className='d-block w-100' src={imageURL} alt={`${property.address} ${imagesArray.indexOf(imageURL) + 1}`} />
 
-                <h3>{description}</h3>
-                <h4>{property.address}</h4>
-                <h2>{formatter.format(property.asking_price)}</h2>
-                {property.offer && <h4>offer-  {formatter.format(property.offer)}</h4>}
-                {property.saved && <h4>saved</h4>}
+                        </Carousel.Item>
+                      )}
+                    </Carousel>
+                    <div className='property_info'>
+                      <div>
+                        <h3>{description}</h3>
+                        <h4>{property.address}</h4>
+                        <h2>{formatter.format(property.asking_price)}</h2>
+                      </div>
+                      <div className='optionals'>
+                        <h1>{property.saved ? '⭐️' : ' '}</h1>
+                        <h4>{property.offer ? `Offer-  ${formatter.format(property.offer)}` : ' '}</h4>
+                      </div>
 
-              </div>
-            </Link>
-          )
-        })}
+
+                    </div>
+
+
+                  </div>
+                </Link>
+              )
+            }) :
+            <p>No Properties to display</p>
+          }
+        </div>
       </div>
     </section>
   )

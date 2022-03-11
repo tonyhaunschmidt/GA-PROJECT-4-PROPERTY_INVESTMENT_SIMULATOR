@@ -1,0 +1,119 @@
+.my_portfolio_page{
+  .my_portfolio_section{
+    padding: 60px 20vw 60px 20vw;
+    min-width: 700px;
+    display: flex;
+    flex-direction: column;
+    .stats_and_map{
+      display: flex;
+      justify-content: space-between;
+      .stats{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        padding: 20px;
+        width: 42%;
+        height: 300px;
+        background: lightgrey;
+        border: 1px, solid, black;
+        border-radius: 10px;
+        box-shadow: 10px 10px 15px rgb(158, 158, 158) ;
+       
+        .ul_pairing{
+          border-top: 1px solid darkgray;
+        }
+        li{
+          margin: 5px
+        }
+      
+      }
+      .map{
+        width: 55%;
+        background: green;
+        border: 1px, solid, black;
+        border-radius: 10px;
+        box-shadow: 10px 10px 15px rgb(158, 158, 158) ;
+      }
+    }
+    .table_container{
+      margin-top: 40px;
+      width: 100%;
+      .key{
+        font-size: x-small;
+        width: 20%;
+        
+        td{
+        width: 50%;
+        border: 1px solid black;
+        border-bottom: none;
+        }
+      }
+      table{
+        width: 100%;
+        th{
+          border: 1px solid black;
+        }
+        .void{
+          background-color: #6AB187;
+        }
+        .no_letting{
+          background-color: #D32D41;
+        }
+        .negative{
+          color: $main_color;
+        }
+        #total{
+          text-align: right;
+          padding-right: 10px;
+          border: none;
+        }
+        
+      }
+    }
+    hr{
+      margin-top: 40px;
+    }
+    & > h4{
+      margin-top: 20px;
+      margin-bottom: 20px;
+      text-decoration: underline;
+    }
+    .market_list{
+      
+      
+      
+      
+      .property_card{
+      border: 1px solid black;
+      display: flex;
+      height: 200px;
+      /*width: 80vw;*/
+      margin-bottom: 30px;
+      border-radius: 10px;
+      overflow: hidden;
+      .carousel{
+        max-width: 300px;
+        margin: 0;
+  
+        .img{
+          height: 100%;
+        }
+      }
+      .property_info{
+        margin: 20px;
+        flex-grow: 1;
+        display: flex;
+        justify-content: space-between;
+        h1{
+          text-align: right;
+        }
+        .optionals{
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+      }
+    }
+    }
+  }
+}

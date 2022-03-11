@@ -813,7 +813,7 @@ const PropertyPage = () => {
                     </ul>
                     :
                     <ul>
-                      <li>You do not currenlty have a letting agent organised for this property</li>
+                      <li>No Letting Agent</li>
                       <li>£0</li>
                       <li>VOID</li>
                       <li>£0</li>

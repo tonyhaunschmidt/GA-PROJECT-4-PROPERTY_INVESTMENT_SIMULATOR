@@ -49,10 +49,8 @@ const RegisterPage = () => {
         {WelcomeIntro ?
           <>
             <h4>WELCOME!</h4>
-            <p className='intro'>Congratulations you've registered an account.</p>
-            <p className='intro'>Log in to get started</p>
+            <p className='intro'>Congratulations you've registered an account. Log in to get started.</p>
             <button className='main_button_style' onClick={goToLogin}>LOG IN</button>
-
           </>
           :
           <>
@@ -72,7 +70,6 @@ const RegisterPage = () => {
                 <input type='password' name='password_confirmation' placeholder='Confirm Password' onChange={handleFormInput} />
                 <button className='main_button_style'>JOIN</button>
               </>}
-            <hr />
             <p>Already have an account? <Link to='/login'>Log In</Link></p>
           </>
         }

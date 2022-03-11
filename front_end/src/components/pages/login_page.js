@@ -39,8 +39,9 @@ const LogIn = () => {
         <input type='text' name='email' placeholder='Email' onChange={handleFormInput} />
         <input type='password' name='password' placeholder='Password' onChange={handleFormInput} />
         <button className='main_button_style'>LOG IN</button>
-        <hr />
-        <p>Don't have an account? <Link to='/register'>Join</Link></p>
+        <div>
+          <p>Don't have an account? <Link to='/register'>Join</Link></p>
+        </div>
       </form>
     </section>
   )

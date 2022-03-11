@@ -4,6 +4,9 @@
   justify-content: center;
   align-items: center;
   height: 90vh;
+  img{
+    margin-bottom: 20px;
+  }
   form{
     
     background-color: lightgrey;
@@ -19,6 +22,8 @@
     border-radius: 15px;
     input{
       margin-bottom: 10px;
+      border-radius: 8px;
+      padding-left: 5px ;
     }
   }
 }
