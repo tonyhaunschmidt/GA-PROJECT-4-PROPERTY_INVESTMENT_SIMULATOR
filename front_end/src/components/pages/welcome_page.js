@@ -17,10 +17,15 @@ const WelcomePage = () => {
   return (
     <section className='welcome_page'>
       <img src={logo} alt='logo'></img>
-      <h1>PROPERTY INVESTMENT SIMULATOR</h1>
-      <p>A simulated world where you can invest in property and grow your empire</p>
-      <Link to='/login'><button className='main_button_style'>Log In</button></Link>
-      <Link to='/register'><button className='main_button_style'>Join</button></Link>
+      <div>
+        <h1>PROPERTY</h1>
+        <h1>INVESTMENT</h1>
+        <h1>SIMULATOR</h1>
+        <p>A simulated world where you can<br /> invest in property and grow your empire</p>
+        <Link to='/login'><button className='main_button_style'>Log In</button></Link>
+        <Link to='/register'><button className='main_button_style'>Join</button></Link>
+      </div>
+
     </section>
   )
 }

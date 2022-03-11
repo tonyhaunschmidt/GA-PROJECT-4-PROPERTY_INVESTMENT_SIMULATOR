@@ -69,8 +69,8 @@ const PropertyPage = () => {
         const { data } = await axios.get(`/api/properties/${id}`)
         setProperty(data)
         setViewState({
-          longitude: data.lat,
-          latitude: data.lon,
+          longitude: data.lon,
+          latitude: data.lat,
           zoom: 15,
         })
         if (data.level === 1) {
@@ -1183,7 +1183,7 @@ const PropertyPage = () => {
                   {...viewState}
                   onMove={evt => setViewState(evt.viewState)}
                 >
-                  <Marker latitude={property.lon} longitude={property.lat}>🏠</Marker>
+                  <Marker latitude={property.lat} longitude={property.lon}>🏠</Marker>
                 </ReactMapGl>
               </div>
             </div>

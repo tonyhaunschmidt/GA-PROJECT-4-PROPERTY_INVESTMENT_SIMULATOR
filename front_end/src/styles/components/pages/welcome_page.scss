@@ -1,0 +1,23 @@
+.welcome_page{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  & > div{
+    z-index: 100;
+    padding-left: 30vw;
+    h1{
+      font-size: 100px;
+    }
+  }
+  
+  img{
+    height: 400px;
+    position: absolute;
+    top: 30vh;
+    left: 20vw;
+    z-index: 1;
+    
+  }
+}

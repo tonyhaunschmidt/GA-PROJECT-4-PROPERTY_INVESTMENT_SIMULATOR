@@ -223,7 +223,7 @@ const MyPortfolioPage = () => {
               onMove={evt => setViewState(evt.viewState)}
             >
               {usersProperties.map(property =>
-                <Marker latitude={property.lon} longitude={property.lat}>🏠</Marker>
+                <Marker latitude={property.lat} longitude={property.lon}>🏠</Marker>
               )}
 
             </ReactMapGl>
