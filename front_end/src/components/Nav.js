@@ -14,6 +14,7 @@ const Nav = () => {
 
   const [currentUser, setCurrentUser] = useState({})
   const [displayDropDown, setDisplayDropDown] = useState(false)
+  const [unreadEmails, setUnreadEmails] = useState(false)
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -25,6 +26,18 @@ const Nav = () => {
         console.log(err)
       }
     }
+    const emails = async () => {
+      try {
+        const { data } = await axios.get(`/api/emails/userspecific/${getPayload().sub}`)
+        if (data.some(email => email.read === false)) {
+          setUnreadEmails(true)
+        }
+
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    emails()
     getCurrentUser()
   }, [])
 
@@ -41,7 +54,7 @@ const Nav = () => {
       <ul>
         <li><Link to={'/myportfolio'}>My Portfolio</Link></li>
         <li><Link to="/marketplace">Marketplace</Link></li>
-        <li><Link to="/email">Email</Link></li>
+        <li className={unreadEmails ? 'unreademails' : ''}><Link to="/email">Email</Link></li>
         <li className='link' onClick={handleLogout}>Log Out</li>
       </ul>
     </nav>

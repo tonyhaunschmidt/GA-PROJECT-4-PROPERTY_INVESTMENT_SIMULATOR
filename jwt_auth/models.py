@@ -13,6 +13,7 @@ class User(AbstractUser):
     saved_properties = models.ManyToManyField(
         "properties.Property",
         related_name="saved_by",
+        default=[],
         blank=True
     )
 

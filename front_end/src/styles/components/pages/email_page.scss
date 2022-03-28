@@ -1,0 +1,43 @@
+.email_page{
+  .email_section{
+    padding: 60px 40px 60px 40px;
+    /*min-width: 700px;*/
+    display: flex;
+    .inbox{
+      border: 1px solid black;
+      border-radius: 5px;
+      height: 90vh;
+      width: 250px;
+      margin-right: 50px;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      .emails{
+        overflow-y: scroll;
+        flex-grow: 1;
+        .unread{
+          font-weight: bold;
+        }
+        button{
+        border: none;
+        background: none;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      }
+      
+    }
+    .email{
+      margin-left: 300px;
+      margin-top: 30px;
+      text-align: justify;
+      a{
+        color: blue;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

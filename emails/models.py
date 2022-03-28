@@ -15,9 +15,8 @@ class Email(models.Model):
         on_delete=models.CASCADE
     )
     subject = models.CharField(max_length=300, default=None)
-    body = models.TextField(max_length=3000, default=None)
     read = models.BooleanField(default=None)
-    time_stamp = models.DateTimeField(default=None)
+    time_stamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.property} - {self.subject} : {self.time_stamp}"

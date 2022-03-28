@@ -9,6 +9,7 @@ import RegisterPage from './components/pages/Register_page'
 import MyPortfolioPage from './components/pages/MyPortfolio_page'
 import MarketplacePage from './components/pages/Marketplace_page'
 import PropertyPage from './components/pages/Property_page'
+import Email from './components/pages/Email_page'
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path='myportfolio' element={<MyPortfolioPage />} />
         <Route path='marketplace' element={<MarketplacePage />} />
         <Route path='property/:id' element={<PropertyPage />} />
+        <Route path='email' element={<Email />} />
       </Routes>
     </BrowserRouter>
   );

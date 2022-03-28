@@ -26,9 +26,15 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('/api/auth/register', formData)
+      const { data } = await axios.post('/api/auth/register', formData)
       //navigate('/login')
       setWelcomeIntro(true)
+      await axios.post('/api/emails', {
+        property: 1,
+        recipient: data.id,
+        subject: 'Welcome!',
+        read: false,
+      })
     } catch (err) {
       console.log(err)
     }

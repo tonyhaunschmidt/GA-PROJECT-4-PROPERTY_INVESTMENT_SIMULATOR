@@ -10,6 +10,8 @@ const MarketplacePage = () => {
 
   const navigate = useNavigate()
 
+  !userIsAuthenticated() && navigate('/')
+
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
     currency: 'GBP',
@@ -19,7 +21,6 @@ const MarketplacePage = () => {
   const [marketPlaceProperies, setMarketPlaceProperies] = useState()
 
   useEffect(() => {
-    !userIsAuthenticated() && navigate('/')
     const getProperties = async () => {
       try {
         const { data } = await axios.get('/api/properties/marketplace')

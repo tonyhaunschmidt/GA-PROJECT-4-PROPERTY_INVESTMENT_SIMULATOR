@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'jwt_auth',
     'properties',
     'offers',
@@ -145,3 +146,19 @@ REST_FRAMEWORK = {
         'jwt_auth.authentication.JWTAuthentication'
     ]
 }
+
+CELERY_BROKER_URL = "amqp://localhost"
+CELERY_RESULT_BACKEND = "rpc://"
+
+CELERY_BEAT_SCHEDULE = {
+    "scheduled_task_one": {
+        "task": "lettings.tasks.find_tenants",
+        "schedule": 10.0,
+    },
+    "scheduled_task_two": {
+        "task": "jwt_auth.tasks.collect_rent_pay_bills",
+        "schedule": 10.0,
+    }
+}
+
+# celery -A project beat -l INFO

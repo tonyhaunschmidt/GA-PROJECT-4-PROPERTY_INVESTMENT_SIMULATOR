@@ -12,6 +12,8 @@ const PropertyPage = () => {
 
   const navigate = useNavigate()
 
+  !userIsAuthenticated() && navigate('/')
+
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
     currency: 'GBP',
@@ -63,7 +65,6 @@ const PropertyPage = () => {
 
 
   useEffect(() => {
-    !userIsAuthenticated() && navigate('/')
     const getProperty = async () => {
       try {
         const { data } = await axios.get(`/api/properties/${id}`)
@@ -316,7 +317,21 @@ const PropertyPage = () => {
       postMortgageAndOffer()
       setPopUpToShow('offerMade')
     }
+    const sendemail = async () => {
+      await axios.post('/api/emails', {
+        property: property.id,
+        recipient: property.owner,
+        subject: 'Offer Received',
+        read: false,
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
+    sendemail()
   }
+
 
   const refeshPage = () => {
     window.location.reload(false);
@@ -362,20 +377,32 @@ const PropertyPage = () => {
       }
     })
 
-    await axios.post('/api/transactions', {
-      type: 'mortgage',
-      property: property.id,
-      owner: currentUser.id,
-      amount: usersActiveOffer.mortgage.loan_value,
-      stamp_duty: 0,
-      fees: 0,
-      property_ownership_term: property.ownership_term + 1
-    }, {
-      headers: {
-        Authorization: `Bearer ${getTokenFromLocalStorage()}`
-      }
-    })
 
+    if (usersActiveOffer.mortgage.LTV === 75) {
+      await axios.post('/api/transactions', {
+        type: 'mortgage',
+        property: property.id,
+        owner: currentUser.id,
+        amount: usersActiveOffer.mortgage.loan_value,
+        stamp_duty: 0,
+        fees: 0,
+        property_ownership_term: property.ownership_term + 1
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+      await axios.post('/api/emails', {
+        property: property.id,
+        recipient: currentUser.id,
+        subject: 'Mortgage',
+        read: false,
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
 
 
     const currentOwner = await axios.get(`/api/auth/${property.owner}`)
@@ -390,6 +417,7 @@ const PropertyPage = () => {
       })
       ownersCapital = ownersCapital - ownersActiveMortgage.loan_value
 
+
       await axios.post('/api/transactions', {
         type: 'paid_mortgage',
         property: property.id,
@@ -403,7 +431,29 @@ const PropertyPage = () => {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
+
+      await axios.post('/api/emails', {
+        property: property.id,
+        recipient: property.owner,
+        subject: 'Mortgage Paid',
+        read: false,
+      }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
     }
+
+
+    //cancel letting agent
+    if (currentLetAgent.id) {
+      await axios.put(`/api/lettings/${currentLetAgent.id}`, { ...currentLetAgent, current: false }, {
+        headers: {
+          Authorization: `Bearer ${getTokenFromLocalStorage()}`
+        }
+      })
+    }
+
 
     //update current owner capital ->will need to pay off bank too (mortgage)
     await axios.put(`/api/auth/${property.owner}`, { ...currentOwner.data, capital: ownersCapital }, {
@@ -449,6 +499,30 @@ const PropertyPage = () => {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
+
+    //Send Emails
+    await axios.post('/api/emails', {
+      property: property.id,
+      recipient: currentUser.id,
+      subject: 'Property Purchase',
+      read: false,
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+
+    await axios.post('/api/emails', {
+      property: property.id,
+      recipient: property.owner,
+      subject: 'Property Sold',
+      read: false,
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
+
     window.location.reload(false);
   }
 
@@ -498,6 +572,16 @@ const PropertyPage = () => {
     })
     setActivePropertyOffers(activePropertyOffers.filter(offer => offer.id != offerToReject.id))
     setPopUpToShow('none')
+    await axios.post('/api/emails', {
+      property: property.id,
+      recipient: offerToReject.owner,
+      subject: 'Offer Rejected',
+      read: false,
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
   }
 
 
@@ -517,6 +601,16 @@ const PropertyPage = () => {
       }
     })
     setPopUpToShow('none')
+    await axios.post('/api/emails', {
+      property: property.id,
+      recipient: offerToAccept.owner,
+      subject: 'Offer Accepted!',
+      read: false,
+    }, {
+      headers: {
+        Authorization: `Bearer ${getTokenFromLocalStorage()}`
+      }
+    })
   }
 
   const dontAcceptOfferCheck = (e) => {
@@ -630,7 +724,9 @@ const PropertyPage = () => {
   }
 
   const handleSave = async () => {
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: currentUser.saved_properties.push(id) }, {
+    console.log(currentUser.saved_properties)
+    const savedProps = [...currentUser.saved_properties, property.id]
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: savedProps }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -642,7 +738,8 @@ const PropertyPage = () => {
     const saved = [...currentUser.saved_properties]
     saved.splice(saved.indexOf(id), 1)
     console.log(saved)
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properites: saved }, {
+    console.log({ ...currentUser, saved_properites: saved })
+    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: saved }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -801,7 +898,6 @@ const PropertyPage = () => {
                     <li>Status</li>
                     <li>Monthly Income</li>
                   </ul>
-                  {console.log(currentLetAgent)}
                   {currentLetAgent.id ?
                     <ul>
                       {currentLetAgent.grade === 'A' ?

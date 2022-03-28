@@ -12,9 +12,11 @@ const mapToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN
 
 const MyPortfolioPage = () => {
 
+  const currentUserID = getPayload().sub
+
   const navigate = useNavigate()
 
-
+  !userIsAuthenticated() && navigate('/')
 
   const formatter = new Intl.NumberFormat('en-UK', {
     style: 'currency',
@@ -42,14 +44,10 @@ const MyPortfolioPage = () => {
 
 
   useEffect(() => {
-    !userIsAuthenticated() && navigate('/')
-    let currentUserID
-    if (getPayload()) {
-      currentUserID = getPayload().sub
-    }
     const getUser = async () => {
       try {
         const userdata = await axios.get(`/api/auth/${currentUserID}`)
+        console.log('here')
         setUser(userdata.data)
         const propertydata = await axios.get(`/api/properties/userspecific/${currentUserID}`)
         setUsersProperties(propertydata.data)
@@ -61,12 +59,119 @@ const MyPortfolioPage = () => {
         setUsersTransactions(transactionsdata.data)
         const offerssdata = await axios.get(`/api/offers/userspecific/${currentUserID}`)
         setUsersActiveOffers(offerssdata.data.filter(offer => offer.retracted === false))
-        console.log(offerssdata.data.filter(offer => offer.retracted === false))
-      } catch (err) {
-        console.log(err)
+        console.log(1)
+      } catch (error) {
+        console.log(error)
       }
     }
+    // const getPropertyStats = () => {
+    //   const propStats = []
+    //   for (let i = 0; i < usersProperties.length; i++) {
+    //     let baseRate = 0
+    //     if (usersProperties[i].level === 1) {
+    //       baseRate = usersProperties[i].base_rate_level1
+    //     } else if (usersProperties[i].level === 2) {
+    //       baseRate = usersProperties[i].base_rate_level2
+    //     } else if (usersProperties[i].level === 3) {
+    //       baseRate = usersProperties[i].base_rate_level3
+    //     }
+    //     const property = {
+    //       id: usersProperties[i].id,
+    //       property: `${usersProperties[i].house_number_or_name} ${usersProperties[i].address}`,
+    //       mortgagePayment: 0,
+    //       rentIncome: 0,
+    //       voidBills: 0,
+    //       lettingFee: 0,
+    //       total: 0,
+    //       void: false,
+    //       noLettingAgent: false
+    //     }
+    //     //mortgage calc
+    //     if (usersActiveMortgages.some(mortgage => mortgage.property === usersProperties[i].id)) {
+    //       const propertyMortgage = usersActiveMortgages.find(mortgage => mortgage.property === usersProperties[i].id)
+    //       property.mortgagePayment = (Math.ceil(propertyMortgage.loan_value * ((propertyMortgage.interest / 100) / 12)))
+    //     } else {
+    //       //delete else if not needed
+    //     }
+    //     //rent calc
+    //     if (usersActiveLets.some(letting => letting.property === usersProperties[i].id)) {
+    //       const propertyLetting = usersActiveLets.find(letting => letting.property === usersProperties[i].id)
+
+    //       if (!propertyLetting.void) {
+    //         property.rentIncome = baseRate
+    //         //letting calc
+    //         if (propertyLetting.grade === 'A') {
+    //           property.lettingFee = Math.ceil(baseRate * 0.2)
+    //         } else if (propertyLetting.grade === 'B') {
+    //           property.lettingFee = Math.ceil(baseRate * 0.15)
+    //         } else if (propertyLetting.grade === 'C') {
+    //           property.lettingFee = Math.ceil(baseRate * 0.1)
+    //         }
+    //       } else {
+    //         //void calc
+    //         property.void = true
+    //         property.voidBills = usersProperties[i].void_upkeep
+    //       }
+    //     } else {
+    //       property.noLettingAgent = true
+    //       property.voidBills = usersProperties[i].void_upkeep
+    //     }
+    //     //total calc
+    //     property.total = property.rentIncome - property.mortgagePayment - property.voidBills - property.lettingFee
+    //     propStats.push(property)
+    //   }
+    //   setPropertyStats(propStats)
+    // }
+    // const getOwnedEquity = () => {
+    //   let equity = 0
+    //   for (let i = 0; i < usersProperties.length; i++) {
+    //     const propertyValuations = usersTransactions.filter(transaction => transaction.property === usersProperties[i].id && (transaction.type === 'property_purchase' || transaction.type === 'valuation'))
+    //     console.log(propertyValuations)
+    //     if (propertyValuations.length) {
+    //       equity += propertyValuations[propertyValuations.length - 1].amount
+    //     }
+    //   }
+    //   setOwnedEquity(equity - usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
+    // }
+    // const getMarketProperties = async () => {
+    //   try {
+    //     const { data } = await axios.get('/api/properties/marketplace')
+    //     setMarketplaceProperties(data)
+    //     const propertiesToDisplay = []
+    //     console.log(usersActiveOffers)
+    //     for (let i = 0; i < usersActiveOffers.length; i++) {
+    //       if (data.some(property => property.id === usersActiveOffers[i].property)) {
+    //         const offeredproperty = data.find(property => property.id === usersActiveOffers[i].property)
+    //         propertiesToDisplay.push({ ...offeredproperty, offer: usersActiveOffers[i].offer_value })
+    //       }
+    //     }
+    //     console.log(user)
+    //     for (let i = 0; i < user.saved_properties.length; i++) {
+    //       if (data.some(property => property.id === user.saved_properties[i])) {
+    //         const savedproperty = data.find(property => property.id === user.saved_properties[i])
+    //         if (propertiesToDisplay.some(property => property.id === savedproperty.id)) {
+    //           const ind = propertiesToDisplay.findIndex(property => property.id === savedproperty.id)
+    //           propertiesToDisplay[ind] = { ...propertiesToDisplay[ind], saved: true }
+    //         } else {
+    //           propertiesToDisplay.push({ ...savedproperty, saved: true })
+    //         }
+    //       } else {
+    //         //delete from saved
+    //       }
+    //     }
+
+    //     console.log(propertiesToDisplay)
+    //     setMarketPropertiesToDisplay(propertiesToDisplay)
+    //     console.log(3)
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // }
     getUser()
+    //getPropertyStats()
+    //getOwnedEquity()
+    //setTotalMortgageLoans(usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
+    //getMarketProperties()
 
   }, [])
 
@@ -132,17 +237,18 @@ const MyPortfolioPage = () => {
     const getOwnedEquity = () => {
       let equity = 0
       for (let i = 0; i < usersProperties.length; i++) {
-        const propertyValuations = usersTransactions.filter(transaction => transaction.property === usersProperties[i].id && (transaction.type === 'mortgage' || transaction.type === 'valuation'))
+        const propertyValuations = usersTransactions.filter(transaction => transaction.property === usersProperties[i].id && (transaction.type === 'property_purchase' || transaction.type === 'valuation'))
         console.log(propertyValuations)
         if (propertyValuations.length) {
           equity += propertyValuations[propertyValuations.length - 1].amount
         }
       }
-      setOwnedEquity(equity - 180000 - 75000)
+      setOwnedEquity(equity - usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
     }
     getOwnedEquity()
     getPropertyStats()
     setTotalMortgageLoans(usersActiveMortgages.reduce((sum, mortgage) => sum + mortgage.loan_value, 0))
+    //   console.log(2)
   }, [usersActiveOffers])
 
 
@@ -153,12 +259,14 @@ const MyPortfolioPage = () => {
         const { data } = await axios.get('/api/properties/marketplace')
         setMarketplaceProperties(data)
         const propertiesToDisplay = []
+        console.log(usersActiveOffers)
         for (let i = 0; i < usersActiveOffers.length; i++) {
           if (data.some(property => property.id === usersActiveOffers[i].property)) {
             const offeredproperty = data.find(property => property.id === usersActiveOffers[i].property)
             propertiesToDisplay.push({ ...offeredproperty, offer: usersActiveOffers[i].offer_value })
           }
         }
+        console.log(user)
         for (let i = 0; i < user.saved_properties.length; i++) {
           if (data.some(property => property.id === user.saved_properties[i])) {
             const savedproperty = data.find(property => property.id === user.saved_properties[i])
@@ -175,13 +283,13 @@ const MyPortfolioPage = () => {
 
         console.log(propertiesToDisplay)
         setMarketPropertiesToDisplay(propertiesToDisplay)
+        console.log(3)
       } catch (err) {
         console.log(err)
       }
     }
     getMarketProperties()
-  }, [totalMortgageLoans])
-
+  }, [user, usersActiveOffers])
 
 
 
@@ -251,20 +359,20 @@ const MyPortfolioPage = () => {
             </thead>
             <tbody>
               {propertyStats.map((property, index) =>
-                <tr className={`property_row ${property.void && 'void'} ${property.noLettingAgent && 'no_letting'}`} key={index}>
+                <tr className={`property_row ${property.void ? 'void' : ''} ${property.noLettingAgent ? 'no_letting' : ''}`} key={index}>
                   <td><Link to={`/property/${property.id}`}>{property.property}</Link></td>
                   <td>{formatter.format(property.rentIncome)}</td>
                   <td>{formatter.format(0 - property.mortgagePayment)}</td>
                   <td>{formatter.format(0 - property.lettingFee)}</td>
                   <td>{formatter.format(0 - property.voidBills)}</td>
-                  <td className={property.total < 0 && 'negative'}>{formatter.format(property.total)}</td>
+                  <td className={property.total < 0 ? 'negative' : ''}>{formatter.format(property.total)}</td>
                 </tr>
               )}
             </tbody>
             <tfoot>
               <tr>
                 <th id="total" colSpan="5">Total: </th>
-                <td className={propertyStats.reduce((sum, property) => sum + property.total, 0) < 0 && 'negative'}><b>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</b></td>
+                <td className={propertyStats.reduce((sum, property) => sum + property.total, 0) < 0 ? 'negative' : ''}><b>{formatter.format(propertyStats.reduce((sum, property) => sum + property.total, 0))}</b></td>
               </tr>
             </tfoot>
           </table>
