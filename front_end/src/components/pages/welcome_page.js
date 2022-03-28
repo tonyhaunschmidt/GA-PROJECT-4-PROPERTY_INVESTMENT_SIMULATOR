@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { userIsAuthenticated } from '../helpers/authHelper'
 
-import logo from '../../assets/small_logo.png'
+import logo from '../../assets/main_page.png'
 
 const WelcomePage = () => {
 
