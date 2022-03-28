@@ -21,6 +21,8 @@
        
         .ul_pairing{
           border-top: 1px solid darkgray;
+          font-size: 80%;
+          white-space: nowrap;
         }
         li{
           margin: 5px
@@ -50,6 +52,7 @@
       }
       table{
         width: 100%;
+        white-space: nowrap;
         th{
           border: 1px solid black;
         }

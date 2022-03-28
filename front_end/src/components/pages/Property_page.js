@@ -768,7 +768,8 @@ const PropertyPage = () => {
             <h2>{property.house_number_or_name} {property.address}</h2>
             <h5>TRANSACTION HISTORY</h5>
             <div className='transaction_container'>
-              {currentTermPropertyTransactions.map((transaction, index) =>
+              <small>[END]</small>
+              {currentTermPropertyTransactions.reverse().map((transaction, index) =>
                 transaction.type === 'mortgage' ?
                   <div className='ul_pairing' key={index}>
                     <ul>
@@ -776,7 +777,7 @@ const PropertyPage = () => {
                       <li>Loan Amount</li>
                     </ul>
                     <ul>
-                      <li>{transaction.time_stamp}</li>
+                      <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                       <li>{formatter.format(transaction.amount)}</li>
                     </ul>
                   </div>
@@ -790,7 +791,7 @@ const PropertyPage = () => {
                         <li>Fees</li>
                       </ul>
                       <ul>
-                        <li>{transaction.time_stamp}</li>
+                        <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                         <li>{formatter.format(0 - transaction.amount)}</li>
                         <li>{formatter.format(0 - transaction.stamp_duty)}</li>
                         <li>{formatter.format(0 - transaction.fees)}</li>
@@ -804,7 +805,7 @@ const PropertyPage = () => {
                           <li>Payment</li>
                         </ul>
                         <ul>
-                          <li>{transaction.time_stamp}</li>
+                          <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                           <li>{formatter.format(0 - transaction.amount)}</li>
                         </ul>
                       </div>
@@ -816,7 +817,7 @@ const PropertyPage = () => {
                             <li>Payment</li>
                           </ul>
                           <ul>
-                            <li>{transaction.time_stamp}</li>
+                            <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                             <li>{formatter.format(transaction.amount)}</li>
                           </ul>
                         </div>
@@ -828,7 +829,7 @@ const PropertyPage = () => {
                               <li>Valuation</li>
                             </ul>
                             <ul>
-                              <li>{transaction.time_stamp}</li>
+                              <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                               <li>{formatter.format(transaction.amount)}</li>
                             </ul>
                           </div>
@@ -840,7 +841,7 @@ const PropertyPage = () => {
                                 <li>Payment</li>
                               </ul>
                               <ul>
-                                <li>{transaction.time_stamp}</li>
+                                <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                                 <li>{formatter.format(0 - transaction.amount)}</li>
                               </ul>
                             </div>
@@ -851,12 +852,11 @@ const PropertyPage = () => {
                                 <li>Payment</li>
                               </ul>
                               <ul>
-                                <li>{transaction.time_stamp}</li>
+                                <li>{(new Date(transaction.time_stamp)).toDateString()}</li>
                                 <li>{formatter.format(0 - transaction.amount)}</li>
                               </ul>
                             </div>
               )}
-              <small>[END]</small>
             </div>
             <hr />
             <div>
@@ -940,12 +940,12 @@ const PropertyPage = () => {
                   <ul>
                     <li>Rent Income</li>
                     <li>Mortgage Payment</li>
-                    {currentLetAgent.void ? <li>Void Bills</li> : <></>}
+                    {currentLetAgent.void || currentLetAgent.grade === 'none' ? <li>Void Bills</li> : <></>}
                     <li>Letting Fee</li>
                     <li>TOTAL INCOME</li>
                   </ul>
                   <ul>
-                    {currentLetAgent.void ?
+                    {currentLetAgent.void || currentLetAgent.grade === 'none' ?
                       <li>£0</li>
                       : currentLetAgent.grade === 'A' ?
                         <li>{formatter.format(level.baseRate)}</li>
@@ -955,8 +955,8 @@ const PropertyPage = () => {
                           <li>{formatter.format(level.baseRate)}</li>
                     }
                     <li>{ownersActiveMortgage ? formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12))) : '£0'}</li>
-                    {currentLetAgent.void ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
-                    {currentLetAgent.void ?
+                    {currentLetAgent.void || currentLetAgent.grade === 'none' ? <li>{formatter.format(0 - property.void_upkeep)}</li> : <></>}
+                    {currentLetAgent.void || currentLetAgent.grade === 'none' ?
                       <li>£0</li>
                       : currentLetAgent.grade === 'A' ?
                         <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.2))}</li>
@@ -965,7 +965,7 @@ const PropertyPage = () => {
                           : currentLetAgent.grade === 'C' &&
                           <li>{formatter.format(0 - Math.ceil(level.baseRate * 0.1))}</li>
                     }
-                    {currentLetAgent.void ?
+                    {currentLetAgent.void || currentLetAgent.grade === 'none' ?
                       <li>{ownersActiveMortgage ?
                         formatter.format(0 - Math.ceil(ownersActiveMortgage.loan_value * ((ownersActiveMortgage.interest / 100) / 12)) - property.void_upkeep)
                         :
@@ -1392,10 +1392,21 @@ const PropertyPage = () => {
                         <div className='text_popup'>
                           <h4>-- CONFIRM PURCHASE --</h4>
                           <p>Property- {property.address}</p>
-                          <p>Value- {formatter.format(usersActiveOffer.offer_value)}</p>
-                          <p>Offer Made On- {usersActiveOffer.time_stamp}</p>
-                          <p>mortgage details</p>
-                          <p>Your Capital- {formatter.format(currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees)}</p>
+                          <p>Offer Value- {formatter.format(usersActiveOffer.offer_value)}</p>
+                          <p>Offer Made On- {(new Date(usersActiveOffer.time_stamp)).toDateString()}</p>
+                          <hr />
+                          {usersActiveOffer.mortgage.LTV === 75 ?
+                            <>
+                              <p>-Mortgage-</p>
+                              <p>75% LTV</p>
+                              <p>Loan value- {formatter.format(usersActiveOffer.mortgage.loan_value)}</p>
+                            </>
+
+                            :
+                            <p>No Mortgage</p>
+                          }
+                          <hr />
+                          <p>Your Remaining Capital- {formatter.format(currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees)}</p>
                           {currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees >= 0 ?
                             <>
                               <button className='main_button_style' onClick={propertyPurchase}>CONFIRM</button>

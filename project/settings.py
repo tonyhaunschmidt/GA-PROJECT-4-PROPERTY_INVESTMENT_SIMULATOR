@@ -153,11 +153,11 @@ CELERY_RESULT_BACKEND = "rpc://"
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task_one": {
         "task": "lettings.tasks.find_tenants",
-        "schedule": 10.0,
+        "schedule": 60*60*24,
     },
     "scheduled_task_two": {
         "task": "jwt_auth.tasks.collect_rent_pay_bills",
-        "schedule": 10.0,
+        "schedule": 60*60*24,
     }
 }
 

@@ -7,11 +7,12 @@
       border: 1px solid black;
       border-radius: 5px;
       height: 90vh;
-      width: 250px;
+      width: 310px;
       margin-right: 50px;
       position: fixed;
       display: flex;
       flex-direction: column;
+      font-size: 15px;
       .emails{
         overflow-y: scroll;
         flex-grow: 1;
@@ -29,9 +30,12 @@
       
     }
     .email{
-      margin-left: 300px;
+      margin-left: 350px;
       margin-top: 30px;
-      text-align: justify;
+      p{
+        text-align: justify;
+      }
+      
       a{
         color: blue;
         &:hover {

@@ -52,7 +52,7 @@ const Email = () => {
           <h4>Inbox</h4>
           <div className='emails'>
             {emails.map((email, index) =>
-              <button key={index} value={email.id} onClick={emailSelected} className={!email.read ? 'unread' : ''}>{email.subject} {email.time_stamp}</button>
+              <button key={index} value={email.id} onClick={emailSelected} className={!email.read ? 'unread' : ''}>{email.subject}- {(new Date(email.time_stamp)).toDateString()}</button>
             )}
           </div>
         </div>
@@ -60,7 +60,7 @@ const Email = () => {
           currentEmail.subject === 'Welcome!' ?
             <div className='email'>
               <h1>{currentEmail.subject}</h1>
-              <h2>{currentEmail.time_stamp}</h2>
+              <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
               <p>You have taken your first step to becoming a property tycoon!</p>
               <p>You've saved £25, 000 and now you're looking to buy your first investment property!</p>
               <p>Here are a few tips to get you started:</p>
@@ -85,7 +85,7 @@ const Email = () => {
             currentEmail.subject === 'Offer Accepted!' ?
               <div className='email'>
                 <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                <h2>{currentEmail.time_stamp}</h2>
+                <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                 <p>Your current offer on {currentEmail.property.house_number_or_name} {currentEmail.property.address} has been excepted by the currrent owner.</p>
                 <p>Click the below link to review the property and finalize the deal.</p>
                 <Link to={`/property/${currentEmail.property.id}`}><p>Marketplace/property/{currentEmail.property.house_number_or_name}{currentEmail.property.address}</p></Link>
@@ -94,7 +94,7 @@ const Email = () => {
               currentEmail.subject === 'Offer Rejected' ?
                 <div className='email'>
                   <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                  <h2>{currentEmail.time_stamp}</h2>
+                  <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                   <p>Your current offer on {currentEmail.property.house_number_or_name} {currentEmail.property.address} has been rejected by the current owner.</p>
                   <p>If you wih to make another offer, please click the below link to review the property.</p>
                   <Link to={`/property/${currentEmail.property.id}`}><p>Marketplace/property/{currentEmail.property.house_number_or_name}{currentEmail.property.address}</p></Link>
@@ -103,7 +103,7 @@ const Email = () => {
                 currentEmail.subject === 'Property Sold' ?
                   <div className='email'>
                     <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                    <h2>{currentEmail.time_stamp}</h2>
+                    <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                     <p>Congratulations! The buyer has finalised this deal.</p>
                     <p>You are no longer the owner of {currentEmail.property.house_number_or_name} {currentEmail.property.address}</p>
                   </div>
@@ -111,7 +111,7 @@ const Email = () => {
                   currentEmail.subject === 'Property Purchase' ?
                     <div className='email'>
                       <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                      <h2>{currentEmail.time_stamp}</h2>
+                      <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                       <p>Congratulations! You have finalised this deal!</p>
                       <p>You are now the proud owner of {currentEmail.property.house_number_or_name} {currentEmail.property.address}</p>
                       <p>Don't forget to manage your new property at the below link</p>
@@ -121,14 +121,14 @@ const Email = () => {
                     currentEmail.subject === 'Mortgage Paid' ?
                       <div className='email'>
                         <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                        <h2>{currentEmail.time_stamp}</h2>
+                        <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                         <p>Your Mortgage for {currentEmail.property.house_number_or_name} {currentEmail.property.address} has been paid off in full</p>
                       </div>
                       :
                       currentEmail.subject === 'Mortgage' ?
                         <div className='email'>
                           <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                          <h2>{currentEmail.time_stamp}</h2>
+                          <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                           <p>You have taken a mortgage out for {currentEmail.property.house_number_or_name} {currentEmail.property.address}.</p>
                           <p>Please see the below link for details</p>
                           <Link to={`/property/${currentEmail.property.id}`}><p>Marketplace/property/{currentEmail.property.house_number_or_name}{currentEmail.property.address}</p></Link>
@@ -137,13 +137,23 @@ const Email = () => {
                         currentEmail.subject === 'Offer Received' ?
                           <div className='email'>
                             <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
-                            <h2>{currentEmail.time_stamp}</h2>
+                            <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
                             <p>You have received an offer for {currentEmail.property.house_number_or_name} {currentEmail.property.address}.</p>
                             <p>Please see the below link for details</p>
                             <Link to={`/property/${currentEmail.property.id}`}><p>Marketplace/property/{currentEmail.property.house_number_or_name}{currentEmail.property.address}</p></Link>
                           </div>
                           :
-                          <></>
+                          currentEmail.subject === 'Property Let' ?
+                            <div className='email'>
+                              <h1>{currentEmail.subject} - {currentEmail.property.house_number_or_name} {currentEmail.property.address}</h1>
+                              <h2>{(new Date(currentEmail.time_stamp)).toDateString()}</h2>
+                              <p>Your letting agent for {currentEmail.property.house_number_or_name} {currentEmail.property.address} has succesfully found tenants and they have now moved in.</p>
+                              <p>Your first rent income will arrive next month in full.</p>
+                              <p>Please see the below link for details</p>
+                              <Link to={`/property/${currentEmail.property.id}`}><p>Marketplace/property/{currentEmail.property.house_number_or_name}{currentEmail.property.address}</p></Link>
+                            </div>
+                            :
+                            <></>
           :
           <></>}
 
