@@ -4,13 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-pylint = "*"
-psycopg2-binary = "*"
-autopep8 = "*"
-pyjwt = "*"
-python-dotenv = "*"
-django-on-heroku = "*"
+celery = "*"
 
 [dev-packages]
 

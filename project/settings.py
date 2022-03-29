@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import django_on_heroku
 from pathlib import Path
 import os
+import redis
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -147,8 +148,18 @@ REST_FRAMEWORK = {
     ]
 }
 
-CELERY_BROKER_URL = "amqp://localhost"
-CELERY_RESULT_BACKEND = "rpc://"
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+CELERY_BROKER_URL = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
+CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task_one": {
