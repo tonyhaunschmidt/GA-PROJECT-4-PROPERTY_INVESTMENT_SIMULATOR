@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import django_on_heroku
 from pathlib import Path
-#import os
+import os
 #import sys
-import redis
+#import redis
 from dotenv import load_dotenv
 load_dotenv()
 
