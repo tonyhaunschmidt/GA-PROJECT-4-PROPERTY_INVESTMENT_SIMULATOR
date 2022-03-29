@@ -65,7 +65,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'front_end')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -162,3 +162,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # celery -A project beat -l INFO
+
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'front_end', "build", "static"),
+)

@@ -67,7 +67,7 @@ const PropertyPage = () => {
   useEffect(() => {
     const getProperty = async () => {
       try {
-        const { data } = await axios.get(`/api/properties/${id}`)
+        const { data } = await axios.get(`/api/properties/${id}/`)
         setProperty(data)
         setViewState({
           longitude: data.lon,
@@ -125,9 +125,9 @@ const PropertyPage = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data } = await axios.get(`/api/auth/${getPayload().sub}`)
+        const { data } = await axios.get(`/api/auth/${getPayload().sub}/`)
         setCurrentUser(data)
-        const offers = await axios.get(`/api/offers/propertyspecific/${id}`)
+        const offers = await axios.get(`/api/offers/propertyspecific/${id}/`)
         setPropertyOffers(offers.data)
         setUserHasActiveOffer(offers.data.some(offer => offer.owner === data.id && offer.retracted === false))
         const activeOffers = []
@@ -139,12 +139,12 @@ const PropertyPage = () => {
         setSavedProperty(data.saved_properties.some(property => property == id))
         setActivePropertyOffers(activeOffers)
         setUsersActiveOffer(activeOffers.find(offer => offer.owner === data.id))
-        const mortgages = await axios.get(`/api/mortgages/propertyspecific/${id}`)
+        const mortgages = await axios.get(`/api/mortgages/propertyspecific/${id}/`)
         setPropertyMortgages(mortgages.data)
         setOwnersActiveMortgage(mortgages.data.find(mortgage => mortgage.owner === property.owner && mortgage.term_expiry !== "1992-10-13T16:00:00Z"))
-        const transactions = await axios.get(`/api/transactions/propertyspecific/${id}`)
+        const transactions = await axios.get(`/api/transactions/propertyspecific/${id}/`)
         setCurrentTermPropertyTransactions(transactions.data.filter(transaction => transaction.property_ownership_term === property.ownership_term))
-        const lettings = await axios.get(`/api/lettings/propertyspecific/${id}`)
+        const lettings = await axios.get(`/api/lettings/propertyspecific/${id}/`)
         lettings.data.some(letting => letting.current === true) && setCurrentLetAgent(lettings.data.find(letting => letting.current === true))
         console.log(property.lat)
 
@@ -299,13 +299,13 @@ const PropertyPage = () => {
     } else {
       const postMortgageAndOffer = async () => {
         try {
-          const { data } = await axios.post('/api/mortgages', { ...mortgageRequest, term_expiry: "1992-10-13T16:00:00" }, {
+          const { data } = await axios.post('/api/mortgages/', { ...mortgageRequest, term_expiry: "1992-10-13T16:00:00" }, {
             headers: {
               Authorization: `Bearer ${getTokenFromLocalStorage()}`
             }
           })
 
-          await axios.post('/api/offers', { ...offerFormData, mortgage: data.id }, {
+          await axios.post('/api/offers/', { ...offerFormData, mortgage: data.id }, {
             headers: {
               Authorization: `Bearer ${getTokenFromLocalStorage()}`
             }
@@ -318,7 +318,7 @@ const PropertyPage = () => {
       setPopUpToShow('offerMade')
     }
     const sendemail = async () => {
-      await axios.post('/api/emails', {
+      await axios.post('/api/emails/', {
         property: property.id,
         recipient: property.owner,
         subject: 'Offer Received',
@@ -338,7 +338,7 @@ const PropertyPage = () => {
   }
 
   const retractOffer = async () => {
-    await axios.put(`/api/offers/${usersActiveOffer.id}`, { ...usersActiveOffer, retracted: true, mortgage: usersActiveOffer.mortgage.id }, {
+    await axios.put(`/api/offers/${usersActiveOffer.id}/`, { ...usersActiveOffer, retracted: true, mortgage: usersActiveOffer.mortgage.id }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -350,14 +350,14 @@ const PropertyPage = () => {
     const purchaseWithMortge = usersActiveOffer.mortgage.LTV === 75 ? true : false
 
     //update property owner and mortgage stats
-    await axios.put(`/api/properties/${property.id}`, { ...property, owner: currentUser.id, for_sale: false, mortgaged: purchaseWithMortge, ownership_term: property.ownership_term + 1 }, {
+    await axios.put(`/api/properties/${property.id}/`, { ...property, owner: currentUser.id, for_sale: false, mortgaged: purchaseWithMortge, ownership_term: property.ownership_term + 1 }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
     //update user capital
     const NewOwnerCapital = currentUser.capital + usersActiveOffer.mortgage.loan_value - usersActiveOffer.offer_value - usersActiveOffer.stamp_duty - usersActiveOffer.fees
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: NewOwnerCapital }, {
+    await axios.put(`/api/auth/${currentUser.id}/`, { ...currentUser, capital: NewOwnerCapital }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -371,7 +371,7 @@ const PropertyPage = () => {
       mortgageExpiry = "1992-10-13T16:00:00"
     }
 
-    await axios.put(`/api/mortgages/${usersActiveOffer.mortgage.id}`, { ...usersActiveOffer.mortgage, term_expiry: mortgageExpiry }, {
+    await axios.put(`/api/mortgages/${usersActiveOffer.mortgage.id}/`, { ...usersActiveOffer.mortgage, term_expiry: mortgageExpiry }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -379,7 +379,7 @@ const PropertyPage = () => {
 
 
     if (usersActiveOffer.mortgage.LTV === 75) {
-      await axios.post('/api/transactions', {
+      await axios.post('/api/transactions/', {
         type: 'mortgage',
         property: property.id,
         owner: currentUser.id,
@@ -392,7 +392,7 @@ const PropertyPage = () => {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
-      await axios.post('/api/emails', {
+      await axios.post('/api/emails/', {
         property: property.id,
         recipient: currentUser.id,
         subject: 'Mortgage',
@@ -405,12 +405,12 @@ const PropertyPage = () => {
     }
 
 
-    const currentOwner = await axios.get(`/api/auth/${property.owner}`)
+    const currentOwner = await axios.get(`/api/auth/${property.owner}/`)
     let ownersCapital = currentOwner.data.capital + usersActiveOffer.offer_value
     //cancel current owners mortgage
     if (ownersActiveMortgage) {
       console.log(ownersActiveMortgage)
-      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
+      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}/`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
@@ -418,7 +418,7 @@ const PropertyPage = () => {
       ownersCapital = ownersCapital - ownersActiveMortgage.loan_value
 
 
-      await axios.post('/api/transactions', {
+      await axios.post('/api/transactions/', {
         type: 'paid_mortgage',
         property: property.id,
         owner: property.owner,
@@ -432,7 +432,7 @@ const PropertyPage = () => {
         }
       })
 
-      await axios.post('/api/emails', {
+      await axios.post('/api/emails/', {
         property: property.id,
         recipient: property.owner,
         subject: 'Mortgage Paid',
@@ -447,7 +447,7 @@ const PropertyPage = () => {
 
     //cancel letting agent
     if (currentLetAgent.id) {
-      await axios.put(`/api/lettings/${currentLetAgent.id}`, { ...currentLetAgent, current: false }, {
+      await axios.put(`/api/lettings/${currentLetAgent.id}/`, { ...currentLetAgent, current: false }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
@@ -456,13 +456,13 @@ const PropertyPage = () => {
 
 
     //update current owner capital ->will need to pay off bank too (mortgage)
-    await axios.put(`/api/auth/${property.owner}`, { ...currentOwner.data, capital: ownersCapital }, {
+    await axios.put(`/api/auth/${property.owner}/`, { ...currentOwner.data, capital: ownersCapital }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
 
-    await axios.post('/api/transactions', {
+    await axios.post('/api/transactions/', {
       type: 'sold_property',
       property: property.id,
       owner: property.owner,
@@ -478,7 +478,7 @@ const PropertyPage = () => {
 
     //retract all offers
     for (let i = 0; i < activePropertyOffers.length; i++) {
-      await axios.put(`/api/offers/${activePropertyOffers[i].id}`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
+      await axios.put(`/api/offers/${activePropertyOffers[i].id}/`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
@@ -486,7 +486,7 @@ const PropertyPage = () => {
     }
 
     //post transaction to database
-    await axios.post('/api/transactions', {
+    await axios.post('/api/transactions/', {
       type: 'property_purchase',
       property: property.id,
       owner: currentUser.id,
@@ -501,7 +501,7 @@ const PropertyPage = () => {
     })
 
     //Send Emails
-    await axios.post('/api/emails', {
+    await axios.post('/api/emails/', {
       property: property.id,
       recipient: currentUser.id,
       subject: 'Property Purchase',
@@ -512,7 +512,7 @@ const PropertyPage = () => {
       }
     })
 
-    await axios.post('/api/emails', {
+    await axios.post('/api/emails/', {
       property: property.id,
       recipient: property.owner,
       subject: 'Property Sold',
@@ -535,7 +535,7 @@ const PropertyPage = () => {
   }
 
   const putOnMarket = async () => {
-    await axios.put(`/api/properties/${property.id}`, { ...property, for_sale: true, asking_price: askingPrice }, {
+    await axios.put(`/api/properties/${property.id}/`, { ...property, for_sale: true, asking_price: askingPrice }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -544,14 +544,14 @@ const PropertyPage = () => {
   }
 
   const takeOffMarket = async () => {
-    await axios.put(`/api/properties/${property.id}`, { ...property, for_sale: false }, {
+    await axios.put(`/api/properties/${property.id}/`, { ...property, for_sale: false }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
     //retract all offers
     for (let i = 0; i < activePropertyOffers.length; i++) {
-      await axios.put(`/api/offers/${activePropertyOffers[i].id}`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
+      await axios.put(`/api/offers/${activePropertyOffers[i].id}/`, { ...activePropertyOffers[i], retracted: true, mortgage: activePropertyOffers[i].mortgage.id }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
@@ -572,7 +572,7 @@ const PropertyPage = () => {
     })
     setActivePropertyOffers(activePropertyOffers.filter(offer => offer.id != offerToReject.id))
     setPopUpToShow('none')
-    await axios.post('/api/emails', {
+    await axios.post('/api/emails/', {
       property: property.id,
       recipient: offerToReject.owner,
       subject: 'Offer Rejected',
@@ -595,13 +595,13 @@ const PropertyPage = () => {
     const indexOfOfferToAccept = offersOnDisplay.indexOf(offerToAccept)
     offersOnDisplay[indexOfOfferToAccept] = { ...offerToAccept, accepted: true }
     setActivePropertyOffers(offersOnDisplay)
-    await axios.put(`/api/offers/${offerToAccept.id}`, { ...offerToAccept, accepted: true, mortgage: offerToAccept.mortgage.id }, {
+    await axios.put(`/api/offers/${offerToAccept.id}/`, { ...offerToAccept, accepted: true, mortgage: offerToAccept.mortgage.id }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
     })
     setPopUpToShow('none')
-    await axios.post('/api/emails', {
+    await axios.post('/api/emails/', {
       property: property.id,
       recipient: offerToAccept.owner,
       subject: 'Offer Accepted!',
@@ -622,7 +622,7 @@ const PropertyPage = () => {
     const indexOfOfferToAccept = offersOnDisplay.indexOf(offerToAccept)
     offersOnDisplay[indexOfOfferToAccept] = { ...offerToAccept, accepted: false }
     setActivePropertyOffers(offersOnDisplay)
-    await axios.put(`/api/offers/${offerToAccept.id}`, { ...offerToAccept, accepted: false, mortgage: offerToAccept.mortgage.id }, {
+    await axios.put(`/api/offers/${offerToAccept.id}/`, { ...offerToAccept, accepted: false, mortgage: offerToAccept.mortgage.id }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -646,14 +646,14 @@ const PropertyPage = () => {
     let fixedVoid = "1992-10-13T16:00:00"
     if (currentLetAgent.fixed_void) {
       fixedVoid = currentLetAgent.fixed_void
-      await axios.put(`/api/lettings/${currentLetAgent.id}`, { ...currentLetAgent, current: false }, {
+      await axios.put(`/api/lettings/${currentLetAgent.id}/`, { ...currentLetAgent, current: false }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
     }
     if (selectedLetAgent.property) {
-      await axios.post('/api/lettings', { ...selectedLetAgent, fixed_void: fixedVoid }, {
+      await axios.post('/api/lettings/', { ...selectedLetAgent, fixed_void: fixedVoid }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
@@ -668,17 +668,17 @@ const PropertyPage = () => {
     if (currentUser.capital < ownersActiveMortgage.loan_value) {
       setPopUpMessage('You have insufficient funds to make this transaction')
     } else {
-      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
+      await axios.put(`/api/mortgages/${ownersActiveMortgage.id}/`, { ...ownersActiveMortgage, term_expiry: "1992-10-13T16:00:00" }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
-      await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - ownersActiveMortgage.loan_value }, {
+      await axios.put(`/api/auth/${currentUser.id}/`, { ...currentUser, capital: currentUser.capital - ownersActiveMortgage.loan_value }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
-      await axios.post('/api/transactions', {
+      await axios.post('/api/transactions/', {
         type: 'paid_mortgage',
         property: property.id,
         owner: currentUser.id,
@@ -700,12 +700,12 @@ const PropertyPage = () => {
       setPopUpMessage('You must have sufficient funds to make this request')
     } else {
       const valuation = lastValuation + (((Math.floor(Math.random() * 20)) - 10) * 1000)
-      await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, capital: currentUser.capital - 500 }, {
+      await axios.put(`/api/auth/${currentUser.id}/`, { ...currentUser, capital: currentUser.capital - 500 }, {
         headers: {
           Authorization: `Bearer ${getTokenFromLocalStorage()}`
         }
       })
-      await axios.post('/api/transactions', {
+      await axios.post('/api/transactions/', {
         type: 'valuation',
         property: property.id,
         owner: currentUser.id,
@@ -726,7 +726,7 @@ const PropertyPage = () => {
   const handleSave = async () => {
     console.log(currentUser.saved_properties)
     const savedProps = [...currentUser.saved_properties, property.id]
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: savedProps }, {
+    await axios.put(`/api/auth/${currentUser.id}/`, { ...currentUser, saved_properties: savedProps }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }
@@ -739,7 +739,7 @@ const PropertyPage = () => {
     saved.splice(saved.indexOf(id), 1)
     console.log(saved)
     console.log({ ...currentUser, saved_properites: saved })
-    await axios.put(`/api/auth/${currentUser.id}`, { ...currentUser, saved_properties: saved }, {
+    await axios.put(`/api/auth/${currentUser.id}/`, { ...currentUser, saved_properties: saved }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }

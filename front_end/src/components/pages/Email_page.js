@@ -20,7 +20,7 @@ const Email = () => {
   useEffect(() => {
     const getEmails = async () => {
       try {
-        const { data } = await axios.get(`/api/emails/userspecific/${getPayload().sub}`)
+        const { data } = await axios.get(`/api/emails/userspecific/${getPayload().sub}/`)
         setEmails(data.reverse())
         console.log(data)
       } catch (err) {
@@ -37,7 +37,7 @@ const Email = () => {
     updatedEmails.splice(updatedEmails.indexOf(selectedEmail), 1, { ...selectedEmail, read: true })
     setEmails(updatedEmails)
     console.log(selectedEmail)
-    await axios.put(`/api/emails/${e.target.value}`, { ...selectedEmail, read: true, property: selectedEmail.property.id }, {
+    await axios.put(`/api/emails/${e.target.value}/`, { ...selectedEmail, read: true, property: selectedEmail.property.id }, {
       headers: {
         Authorization: `Bearer ${getTokenFromLocalStorage()}`
       }

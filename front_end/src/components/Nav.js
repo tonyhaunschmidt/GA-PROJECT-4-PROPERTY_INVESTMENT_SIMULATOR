@@ -20,7 +20,7 @@ const Nav = () => {
     const getCurrentUser = async () => {
       try {
         const payload = getPayload()
-        const { data } = await axios.get(`/api/auth/${payload.sub}`)
+        const { data } = await axios.get(`/api/auth/${payload.sub}/`)
         setCurrentUser(data)
       } catch (err) {
         console.log(err)
@@ -28,7 +28,7 @@ const Nav = () => {
     }
     const emails = async () => {
       try {
-        const { data } = await axios.get(`/api/emails/userspecific/${getPayload().sub}`)
+        const { data } = await axios.get(`/api/emails/userspecific/${getPayload().sub}/`)
         if (data.some(email => email.read === false)) {
           setUnreadEmails(true)
         }

@@ -18,12 +18,12 @@ const MarketplacePage = () => {
     minimumFractionDigits: 0
   })
 
-  const [marketPlaceProperies, setMarketPlaceProperies] = useState()
+  const [marketPlaceProperies, setMarketPlaceProperies] = useState([])
 
   useEffect(() => {
     const getProperties = async () => {
       try {
-        const { data } = await axios.get('/api/properties/marketplace')
+        const { data } = await axios.get('/api/properties/marketplace/')
         setMarketPlaceProperies(data)
       } catch (err) {
         console.log(err)
