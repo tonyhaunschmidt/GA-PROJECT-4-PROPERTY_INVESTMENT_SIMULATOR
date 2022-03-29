@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { getPayload, getTokenFromLocalStorage, userIsAuthenticated } from '../helpers/authHelper'
 import ReactMapGl, { Marker } from 'react-map-gl'
+import mapboxgl from 'mapbox-gl'
+
+
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
 
 import Carousel from 'react-bootstrap/Carousel'
