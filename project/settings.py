@@ -13,7 +13,7 @@ import django_on_heroku
 from pathlib import Path
 import os
 #import sys
-#import redis
+import redis
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -143,17 +143,11 @@ REST_FRAMEWORK = {
     ]
 }
 
-# CACHES = {
-#    "default": {
-#        "BACKEND": "django_redis.cache.RedisCache",
-#        "LOCATION": os.environ.get('REDIS_URL'),
-#        "OPTIONS": {
-#            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#        }
-#    }
-# }
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+#CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+#CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+CELERY_BROKER_URL = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 #CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -172,6 +166,16 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
 # celery -A project beat -l INFO
 
 
@@ -180,7 +184,7 @@ ROOT_URLCONF = 'project.urls'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'front_end', "build", "static"),
