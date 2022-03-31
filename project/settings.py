@@ -143,18 +143,18 @@ REST_FRAMEWORK = {
     ]
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_URL'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+# CACHES = {
+#    "default": {
+#        "BACKEND": "django_redis.cache.RedisCache",
+#        "LOCATION": os.environ.get('REDIS_URL'),
+#        "OPTIONS": {
+#            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#        }
+#    }
+# }
 
-CELERY_BROKER_URL = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
-CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+#CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -164,11 +164,11 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task_one": {
         "task": "lettings.tasks.find_tenants",
-        "schedule": 60*60*24,
+        "schedule": 10,
     },
     "scheduled_task_two": {
         "task": "jwt_auth.tasks.collect_rent_pay_bills",
-        "schedule": 60*60*24,
+        "schedule": 10,
     }
 }
 
