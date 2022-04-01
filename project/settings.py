@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 #import sys
 #import redis
+import ssl
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -153,6 +154,7 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_REQUIRED}
 
 
 CELERY_BEAT_SCHEDULE = {
