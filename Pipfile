@@ -8,6 +8,7 @@ celery = "*"
 django-on-heroku = "*"
 python-dotenv = "*"
 django-celery-beat = "*"
+typing-extensions = "*"
 
 [dev-packages]
 
