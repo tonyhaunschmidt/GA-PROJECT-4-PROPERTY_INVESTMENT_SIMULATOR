@@ -10,6 +10,7 @@ python-dotenv = "*"
 django-celery-beat = "*"
 typing-extensions = "*"
 django-redis = "*"
+djangorestframework = "*"
 
 [dev-packages]
 
