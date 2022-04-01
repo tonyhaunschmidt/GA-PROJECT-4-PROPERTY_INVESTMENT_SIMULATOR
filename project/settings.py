@@ -13,7 +13,7 @@ import django_on_heroku
 from pathlib import Path
 import os
 #import sys
-#import redis
+import redis
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -143,7 +143,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-#r = redis.from_url(os.environ.get("REDIS_URL"))
+r = redis.from_url(os.environ.get("REDIS_URL"))
 
 #CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 #CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
