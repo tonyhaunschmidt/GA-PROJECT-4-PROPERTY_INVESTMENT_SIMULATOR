@@ -160,11 +160,11 @@ CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_REQUIRED}
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task_one": {
         "task": "lettings.tasks.find_tenants",
-        "schedule": 10.0,
+        "schedule": 60*60*24,
     },
     "scheduled_task_two": {
         "task": "jwt_auth.tasks.collect_rent_pay_bills",
-        "schedule": 10.0,
+        "schedule": 60*60*24,
     }
 }
 
