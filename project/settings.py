@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
 #CELERY_BROKER_URL = "redis://127.0.0.1:6379"
 #CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
 CELERY_BROKER_URL = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
-#CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
+CELERY_RESULT_BACKEND = "redis://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
