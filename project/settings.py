@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 #import sys
 #import redis
-from doten import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
