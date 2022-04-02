@@ -144,10 +144,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-#r = redis.from_url(os.environ.get("REDIS_URL"))
-
-#CELERY_BROKER_URL = "redis://127.0.0.1:6379"
-#CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
 CELERY_BROKER_URL = "rediss://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 CELERY_RESULT_BACKEND = "rediss://:p6a9eede31b7f37b912b16b2b88d91d13e3e2d2effd2aca26149a04af86f73b60@ec2-52-31-74-37.eu-west-1.compute.amazonaws.com:14310"
 CELERY_ACCEPT_CONTENT = ['application/json']
@@ -160,11 +156,11 @@ CELERY_REDIS_BACKEND_USE_SSL = {'ssl_cert_reqs': ssl.CERT_REQUIRED}
 CELERY_BEAT_SCHEDULE = {
     "scheduled_task_one": {
         "task": "lettings.tasks.find_tenants",
-        "schedule": 60*60*24,
+        "schedule": 10.0,
     },
     "scheduled_task_two": {
         "task": "jwt_auth.tasks.collect_rent_pay_bills",
-        "schedule": 60*60*24,
+        "schedule": 10.0,
     }
 }
 
@@ -180,8 +176,6 @@ CACHES = {
         }
     }
 }
-
-# celery -A project beat -l INFO
 
 
 ROOT_URLCONF = 'project.urls'

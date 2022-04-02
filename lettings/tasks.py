@@ -14,21 +14,14 @@ from dateutil.parser import parse
 
 
 @shared_task
-def add(x, y):
-    return x + y
-
-
-@shared_task
 def find_tenants():
     lettings = Letting.objects.all()
     serialized_lettings = LettingSerializer(lettings, many=True)
-
     for letting in serialized_lettings.data:
         letting_to_update = Letting.objects.get(pk=letting['id'])
         serialized_letting_to_update = LettingSerializer(letting_to_update)
         tenant_chance_factor = randrange(100)
         tenants_found = False
-        # return parse(serialized_letting_to_update.data['fixed_void'])
         if serialized_letting_to_update.data['void'] == True and serialized_letting_to_update.data['current'] == True and parse(serialized_letting_to_update.data['fixed_void']) < datetime.now(timezone.utc):
             if serialized_letting_to_update.data['grade'] == 'A':
                 if(tenant_chance_factor > 30):
