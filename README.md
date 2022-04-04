@@ -7,6 +7,8 @@
 My final project on the General Assembly Software Engineering Immersive course was to develop a full-stack application with an SQL back-end using Django and a React front-end in one week. Being very interested in FinTech and understanding the advantages of using an SQL database with financial data, I was gravitated to developing a game-like application where you can simulate investing in property.
 
 I had a huge amount of fun not only playing with the game-like mechanics but structuring the data in the most useful way, working through the different functionalities of putting an offer on a property, applying for a mortgage, managing your properties and more.
+
+My newly learnt technologies for this project was Python, Django, PostgreSQL, Celery, Celery Beat, Redis and React MapBox. 
 ## TIMEFRAME
 8 days
 ## TECHNOLOGIES
@@ -50,14 +52,38 @@ The nature of this project left me open to many ideas of features, functionaliti
 
 Once I had decided which features I wanted to run with, I created a simple wireframe design (using Excalidraw) for each page to fully mould the intended UX and plan how each feature will be used. 
 
-{final wireframe}
+![final wireframe](readme_assets/final_wireframe.png)
 
 I knew that I would need a handful of connecting data entities so it was important for me to spend time creating a fully fledged ERD (using QuickDBD)
 
-{ERD}
+![ERD](readme_assets/ERD.png)
 
-An important part of the planning stage was researching a way for time to move forward without the user having to be logged in. I quickly landed on using Celery, a task manager that can be used with Django to run scheduled tasks form the back-end. 
+An important part of the planning stage was researching a way for time to move forward without the user having to be logged in. I quickly landed on using Celery, a task manager that can be used with Django to run scheduled tasks from the back-end. 
 ## DJANGO
+Having my coding journey start from a place of self tought Excel, I feel that I took to the idea of SQL databases quite well. With this I loved my introduction to Django and developing an ERD to plan my individual Django apps and building their respective models. 
+
+In this project I wanted to demonstrate a use of a many-to-many relationship, a one-to-many/many-to-one relationship and a one to one relationship. 
+
+An example of a one-to-many/many-to-one relationship would be in the Offer model where the property and owner feilds both have a foreign key linking to the respective Property and Owner tables. These relationships now mean that one Property can have many Offers or one Owner can have many Offers. 
+
+Similarily, there is also an example of a one-to-one relationship in the Offer model where one mortgage can only be related to one offer and vice versa.
+A learning point for me here is that I could have used models.OneToOneField() rather than models.ForeignKey(). This would have more specifically defined a one to one relationship whereas at the moment it is only a one to one relationship due to my use case. The difference is that using OneToOneField would mean the reverse side of the relation would return a single object whereas using ForeignKey returns a QuerySet.  
+
+![offer model](readme_assets/offer_model.png)
+
+In the User model where we extend the default Django User model I have used ManyTOManyField to define the relationship between a user and the properties they have saved. this means that a user can save many properties and a property can be saved by many users. 
+
+![user model](readme_assets/user_model.png)
+
+Another new concept I enjoyed learning about was Django serializers. An example of a nested serialzer is in the Email app. Here you can see that I have written a PropertySerializer to convert property model instances for select fields before using that in the PopulatedEmailSerializer which inherits everything from the standard Email serializer and additionally uses the PropertySerializer to populate the property data rather than return the primary key value of each property. 
+
+![populated email serializer](readme_assets/populated_email_serializer.png)
+
+Lastly, a key Django component is views. Having already completed a project with Express it was quite easy to liken them to Express controllers. Below is a simple View containing a Post request where at the front-end we can create an Email. The requested email is passed through the serializer before we check if the request data is valid and if this is passed, the new data entry is saved to the database. Lastly we return a response using the Django framework import. Additionally, I have coded exceptions to catch errors in the request and return an error response.
+
+![email list view](readme_assets/email_list_view.png)
+
+
 ## CELERY, CELERY BEAT AND REDIS
 As this project was the final segment of my General Assembly course, I was quite keen to impliment a relatively complex technology that was not touched apon at all during the course. Using Celery was a great opportunity for me to challenge myself in this sense and it also doubled as a good opportunity for me to practice Python which was only briefly touched upon during the course when learning the Django framework.
 
@@ -65,11 +91,11 @@ I wanted to to use Celery to run 2 tasks:
 * To run through each user, and for each of their properties, by searching for the property's current mortgage and letting agreement (if they exist), determine the rent income or void payments, the mortgage payment and the letting fee, and update the users capital with the respective income or expenditure.   
 * To run through all the current letting agreements and if the property is void, run a chance orientated algorithm in which if the random number generated is over a certain value it changes the 'void' value of that particular let to 'False'. This in real terms is the finding of a tenant. One of the functionalities I wanted to implement was having the choice of letting agent which affected the likelihood of finding a tenant. This was achieved by each letting agreement having a grade of 'A', 'B' or 'C' which is chosen on the front-end by the user. A feature I wanted to implement which I unfortunately wasn't able to achieve in the timeframe was to have certain events that set a fixed void period. For example, home improvements that would make the property inhabitable for a few months. This was planned for in the data structure but unfortunately not implemented on the front end.  
 
-{task screenshot}
+![celery task](readme_assets/celery_task.png)
 
 After the tasks had been written, as there is no trigger coming from the front-end to run these tasks, Celery needed to know when to run them. This is done by writing a schedule with Celery Beat. (During production I had both tasks running every 10 seconds)  
 
-{celery beat schedule screenshot}
+![celery beat](readme_assets/celery_beat.png)
 
 An important part of using Celery is selecting a message broker which lets Django and Celery talk to each other. During production I used RabbitMQ, however at deployment (the project was deployed on Heroku), it didn't appear that there was a RabbitMQ add on, so I switched over to Redis which seemed much more ready to use with Heroku. 
 ## CONCLUSION AND KEY LEARNING
@@ -77,9 +103,11 @@ An important part of using Celery is selecting a message broker which lets Djang
 -As mentioned there are many features and simulation mechanics I would have liked to implement:
 * Home improvements- As you can see from the code and front-end, this was planned however I unfortunately ran out of time. The idea was that for a fee, you can improve your property which in turn would improve your rent income. The level 1 of each property would typically be a refurb project that you could not let out until you improved it to level 2. Level 3 would then be a luxury version of the property.
 * Remortgage- If you had paid off your mortgage, re-valued your property or are simply coming to the end of your mortgage term you could remortgage your property.
+* Fixed Void Periods
 * Currently if left indefinitely a mortgage will never run out, even if it is past it's expiry date. 
 * Property issues- Random events would happen in which the user is tasked with dealing with property issues, such as a broken boiler or tenants not paying their rent. 
 * Property desirability- A hidden value would be assigned to each property (and improved on each level) that would be factored in to the 'find a tenant' algorithm. The user would use there own judgement of desirability by reading the descriptions.
+* search and filtering functionality for the marketplace.
 
 -I would certainly like to have spent more time styling for a much more finished look. And especially to have made the application responsive for use on mobile phones. 
 

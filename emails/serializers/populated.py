@@ -5,11 +5,11 @@ from rest_framework import serializers
 # Serializers
 
 
-class propertySerializer(serializers.ModelSerializer):
+class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = ("id", "house_number_or_name", "address")
 
 
 class PopulatedEmailSerializer(EmailSerializer):
-    property = propertySerializer()
+    property = PropertySerializer()

@@ -14,7 +14,7 @@ class Offer(models.Model):
         related_name="offers",
         on_delete=models.CASCADE
     )
-    mortgage = models.ForeignKey(
+    mortgage = models.OneToOneField(
         "mortgages.Mortgage",
         related_name="offers",
         on_delete=models.CASCADE
