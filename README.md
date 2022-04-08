@@ -4,11 +4,11 @@
 
 
 ## BRIEF
-My final project on the General Assembly Software Engineering Immersive course was to develop a full-stack application with an SQL back-end using Django and a React front-end in one week. Being very interested in FinTech and understanding the advantages of using an SQL database with financial data, I was gravitated to developing a game-like application where you can simulate investing in property.
+My final project on the General Assembly Software Engineering Immersive course was to develop a full-stack application with an SQL back-end using Django and a React front-end in one week. Being very interested in FinTech and understanding the advantages of using an SQL database with financial data, I was gravitated towards developing a game-like application where you can simulate investing in property.
 
 I had a huge amount of fun not only playing with the game-like mechanics but structuring the data in the most useful way, working through the different functionalities of putting an offer on a property, applying for a mortgage, managing your properties and more.
 
-My newly learnt technologies for this project was Python, Django, PostgreSQL, Celery, Celery Beat, Redis and React MapBox. 
+My newly learnt technologies for this project were Python, Django, PostgreSQL, Celery, Celery Beat, Redis and React MapBox. 
 ## TIMEFRAME
 8 days
 ## TECHNOLOGIES
@@ -33,7 +33,7 @@ All the properties for sale are owned by the Property Investment Simulator Bank.
 * BANK@pis.com
 * pisbank123
 
-To see a mentained account you can log in with the below details (please refrain from making any transactions or processing any property management changes)
+To see a maintained account you can log in with the below details (please refrain from making any transactions or processing any property management changes)
 
 * exampleuser@pis.com
 * pisuser123
@@ -50,7 +50,7 @@ As the application is a simulation, time moves quicker than the real world and s
 ## PLANNING
 The nature of this project left me open to many ideas of features, functionalities and simulation mechanics, so a challenging part of the planning stage was narrowing down my ideas to an MVP and substantial UX which would be achievable within the given timeframe. My focus was very much on achieving enough functionality for a proof of concept.  
 
-Once I had decided which features I wanted to run with, I created a simple wireframe design (using Excalidraw) for each page to fully mould the intended UX and plan how each feature will be used. 
+Once I had decided which features I wanted to run with, I created a simple wireframe design (using Excalidraw) for each page to fully mould the intended UX and plan how each feature would be used. 
 
 ![final wireframe](readme_assets/final_wireframe.png)
 
@@ -89,7 +89,7 @@ As this project was the final segment of my General Assembly course, I was quite
 
 I wanted to use Celery to run 2 tasks:
 * To run through each user, and for each of their properties, by searching for the property's current mortgage and letting agreement (if they exist), determine the rent income or void payments, the mortgage payment and the letting fee, and update the users capital with the respective income or expenditure.   
-* To run through all the current letting agreements and if the property is void, run a chance orientated algorithm in which if the random number generated is over a certain value it changes the 'void' value of that particular let to 'False'. This in real terms is the finding of a tenant. One of the functionalities I wanted to implement was having the choice of letting agent which affected the likelihood of finding a tenant. This was achieved by each letting agreement having a grade of 'A', 'B' or 'C' which is chosen on the front-end by the user. A feature I wanted to implement which I unfortunately wasn't able to achieve in the timeframe was to have certain events that set a fixed void period. For example, home improvements that would make the property inhabitable for a few months. This was planned for in the data structure but unfortunately not implemented on the front end.  
+* To run through all the current letting agreements and if the property is void, run a chance orientated algorithm in which if the random number generated is over a certain value it changes the 'void' value of that particular let to 'False'. This in real terms is the finding of a tenant. One of the functionalities I wanted to implement was having the choice of letting agents which affected the likelihood of finding a tenant. This was achieved by each letting agreement having a grade of 'A', 'B' or 'C' which is chosen on the front-end by the user. A feature I wanted to implement which I unfortunately wasn't able to achieve in the timeframe was to have certain events that set a fixed void period. For example, home improvements that would make the property inhabitable for a few months. This was planned for in the data structure but unfortunately not implemented on the front end.  
 
 ![celery task](readme_assets/celery_task.png)
 
@@ -101,25 +101,44 @@ An important part of using Celery is selecting a message broker which lets Djang
 ## CONCLUSION AND KEY LEARNING
 The thing I enjoyed most about this project was finding and learning a new technology by myself and implementing it through following the documentation and a process of trial and error. I love to learn new things. This was one of the things that really attracted me to working in the tech industry. With completing the extra challenge I set myself in this final project of my GA course, I feel confident that I can continue to grow and challenge myself with learning and mastering new skills, something I very much hope to do in my career and spare time. 
 
-I am quite glad that I managed to achieve as much as I did in the 8 day timeframe and I had decided on a focus of functionality and creating a substantial enough UX to demonstrate a proof of concept which I feel i have done, however I feel like I could spend a lot of time reviewing and refactoring large chunks of code especially in the front end and focus more on efficiency and writing DRY code. This is definitely something that I want to work on as I progress my coding skills. 
+I am quite glad that I managed to achieve as much as I did in the 8 day timeframe and I had decided on a focus of functionality and creating a substantial enough UX to demonstrate a proof of concept which I feel i have done, however I feel like I could spend a lot of time reviewing and refactoring large chunks of code especially in the front-end and focus more on efficiency and writing DRY code. This is definitely something that I want to work on as I progress my coding skills. 
 
 I enjoyed using Django as a framework. It is relatively simple and I think quite elegant and I can definitely see myself using it in future projects. 
 
 
 ## FUTURE IMPROVEMENTS
--As mentioned there are many features and simulation mechanics I would have liked to implement:
-* Home improvements- As you can see from the code and front-end, this was planned however I unfortunately ran out of time. The idea was that for a fee, you can improve your property which in turn would improve your rent income. The level 1 of each property would typically be a refurb project that you could not let out until you improved it to level 2. Level 3 would then be a luxury version of the property.
+As mentioned there are many features and simulation mechanics I would have liked to implement:
+* Home improvements- As you can see from the code and front-end, this was planned however, I unfortunately ran out of time. The idea was that for a fee, you can improve your property which in turn would improve your rent income. The level 1 of each property would typically be a refurb project that you could not let out until you improved it to level 2. Level 3 would then be a luxury version of the property.
 * Remortgage- If you had paid off your mortgage, re-valued your property or are simply coming to the end of your mortgage term you could remortgage your property.
 * Fixed Void Periods
-* Currently if left indefinitely a mortgage will never run out, even if it is past it's expiry date. 
+* Currently if left indefinitely a mortgage will never run out, even if it is past its expiry date. 
 * Property issues- Random events would happen in which the user is tasked with dealing with property issues, such as a broken boiler or tenants not paying their rent. 
 * Property desirability- A hidden value would be assigned to each property (and improved on each level) that would be factored into the 'find a tenant' algorithm. The user would use their own judgement of desirability by reading the descriptions.
 * Search and filtering functionality for the marketplace.
 
--I would certainly like to have spent more time styling for a much more finished look. And especially to have made the application responsive for use on mobile phones. 
+I would certainly like to have spent more time styling for a much more finished look. And especially to have made the application responsive for use on mobile phones. 
 
--Error handling on login and register
+Error handling on login and register
 
--I would have enjoyed spending more time figuring out different ways of displaying the statistics and figures on the various pages.
+I would have enjoyed spending more time figuring out different ways of displaying the statistics and figures on the various pages.
 
--As the users are the ones that set the price when they put the property for sale, I would love to experiment with how the economy of this simulation would develop with a handful of users. 
+As the users are the ones that set the price when they put the property for sale, I would love to experiment with how the economy of this simulation would develop with a handful of users. 
+
+#### KNOWN BUGS
+
+Occasionally on the portfolio and property page, the first render misses some of the information (portfolio breakdown & transactions) and requires a refresh from the user. 
+
+In instances like confirming a property transaction, because of the way that the Axios requests are lined up, on occasions the entire function can fail half way through resulting in only some of the required data points being updated. Similarly this can happen if the button is pressed too many times.  
+
+
+
+## CONTACT
+I would love to receive any feedback or hear about any of your similar projects. Please get in touch!
+
+tonyhaunschmidt@gmail.com
+
+[tonyhaunschmidt.com](www.tonyhaunschmidt.com)
+
+[LinkedIn/tonyhaunschmidt](www.linkedin.com/in/tony-haunschmidt/)
+
+[My GitHub Profile and Other Projects](www.github.com/tonyhaunschmidt)
