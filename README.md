@@ -25,7 +25,7 @@ My newly learnt technologies for this project were Python, Django, PostgreSQL, C
 * Redis
 
 
-## [OPEN IN BROWSER](https://propertyinvestmentsimulator.herokuapp.com/)
+## [OPEN IN BROWSER](https://propertyinvestmentsimulator.herokuapp.com/){:target="_blank"}
 Please register and log in as a new user. 
 
 All the properties for sale are owned by the Property Investment Simulator Bank. To experience the full UX of buying a property, the property owner must accept any offer you make. You can do this by logging in as the bank using the details below, find the property you have made an offer on and accept your offer. You can then re-log in to your own account and finalise the purchase. 
@@ -137,8 +137,8 @@ I would love to receive any feedback or hear about any of your similar projects.
 
 tonyhaunschmidt@gmail.com
 
-[tonyhaunschmidt.com](https://creative-cucurucho-1bee8e.netlify.app/)
+[tonyhaunschmidt.com](https://creative-cucurucho-1bee8e.netlify.app/){:target="_blank"}
 
-[LinkedIn/tonyhaunschmidt](https://www.linkedin.com/in/tony-haunschmidt/)
+[LinkedIn/tonyhaunschmidt](https://www.linkedin.com/in/tony-haunschmidt/){:target="_blank"}
 
-[My GitHub Profile and Other Projects](https://github.com/tonyhaunschmidt)
+[My GitHub Profile and Other Projects](https://github.com/tonyhaunschmidt){:target="_blank"}
