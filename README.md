@@ -137,7 +137,7 @@ I would love to receive any feedback or hear about any of your similar projects.
 
 tonyhaunschmidt@gmail.com
 
-[tonyhaunschmidt.com](https://creative-cucurucho-1bee8e.netlify.app/)
+[tonyhaunschmidt.com](https://www.tonyhaunschmidt.com/)
 
 [LinkedIn/tonyhaunschmidt](https://www.linkedin.com/in/tony-haunschmidt/)
 
