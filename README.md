@@ -105,6 +105,14 @@ I am quite glad that I managed to achieve as much as I did in the 8 day timefram
 
 I enjoyed using Django as a framework. It is relatively simple and I think quite elegant and I can definitely see myself using it in future projects. 
 
+#### CHALLENGES
+* Learning how to implement Celery and how to use a message broker like RabbitMQ and Redis. 
+* Narrowing down all my ideas to an MVP achievable within the given timeframe. 
+
+#### WINS
+* Getting to grips with Django and SQL databases. 
+* Implementing Celery and using RabbitMQ and Redis.
+* Having an opportunity to practice my Python skills.  
 
 ## FUTURE IMPROVEMENTS
 As mentioned there are many features and simulation mechanics I would have liked to implement:
