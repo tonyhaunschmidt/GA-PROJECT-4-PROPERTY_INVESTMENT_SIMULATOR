@@ -6,7 +6,7 @@
 ## BRIEF
 My final project on the General Assembly Software Engineering Immersive course was to develop a full-stack application with an SQL back-end using Django and a React front-end in one week. Being very interested in FinTech and understanding the advantages of using an SQL database with financial data, I was gravitated towards developing a game-like application where you can simulate investing in property.
 
-I had a huge amount of fun not only playing with the game-like mechanics but structuring the data in the most useful way, working through the different functionalities of putting an offer on a property, applying for a mortgage, managing your properties and more.
+I had a huge amount of fun not only playing with the game-like mechanics but also structuring the data and working through the different functionalities of putting an offer on a property, applying for a mortgage, managing your properties and more.
 
 My newly learnt technologies for this project were Python, Django, PostgreSQL, Celery, Celery Beat, Redis and React MapBox. 
 ## TIMEFRAME
